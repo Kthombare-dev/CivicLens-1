@@ -1,0 +1,361 @@
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--nav-height);
+    z-index: 1000;
+    /* Faster 200ms transition as requested */
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.5rem;
+
+    /* 1. Add Depth: Soft bottom border for visual grounding */
+    border-bottom: 1px solid rgba(15, 23, 42, 0.02);
+
+    /* 2. Animate Presence: Fast 200ms slide down */
+    animation: navbarFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.navbar.scrolled {
+    /* 2. On Scroll: Blur + Micro shadow */
+    background-color: var(--bg-glass);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02);
+    height: 64px;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.navbar-container {
+    width: 100%;
+    max-width: var(--max-width);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Logo Section */
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.navbar-logo:hover {
+    transform: scale(1.02);
+}
+
+.logo-image {
+    /* Preserving User Preference */
+    height: 7rem;
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: -0.03em;
+    color: var(--color-primary);
+}
+
+/* Menu Container (Links + Actions) */
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 2.5rem;
+}
+
+/* Navigation Links */
+.navbar-links {
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+.nav-link {
+    font-size: 0.95rem;
+    position: relative;
+    padding-bottom: 4px;
+    opacity: 0;
+    animation: slideDownFade 0.5s ease-out forwards;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Hierarchy & Weights */
+.nav-link.text-primary {
+    font-weight: 500;
+    color: var(--color-primary);
+    opacity: 1;
+}
+
+.nav-link.text-secondary {
+    font-weight: 500;
+    color: var(--color-primary-light);
+    opacity: 0.85;
+}
+
+.nav-link.text-tertiary {
+    font-weight: 400;
+    color: var(--color-primary-light);
+    opacity: 0.75;
+}
+
+.nav-link:hover {
+    color: var(--color-primary);
+    opacity: 1;
+}
+
+.nav-link.active {
+    font-weight: 600;
+    color: var(--color-primary);
+    opacity: 1;
+}
+
+/* Stagger animations */
+.nav-link:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.nav-link:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.nav-link:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.nav-link:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.nav-link:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+/* 4. Motion Underline: Rounded + Easing */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background-color: var(--color-primary);
+    border-radius: 99px;
+    /* Rounded tips */
+    transition: width 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+    transform-origin: left;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}
+
+/* Action Buttons */
+.navbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0;
+    animation: slideDownFade 0.5s ease-out 0.6s forwards;
+}
+
+.btn-secondary {
+    color: var(--color-primary);
+    font-weight: 500;
+    opacity: 0.9;
+    background: transparent;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.95rem;
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.btn-secondary:hover {
+    color: var(--color-accent);
+    opacity: 1;
+}
+
+/* 3. CTA Personality: Soft Glow + Lift */
+.btn-primary {
+    background-color: var(--color-civic-green);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.1), 0 2px 4px -1px rgba(16, 185, 129, 0.06);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-civic-green-hover);
+    transform: translateY(-2px);
+    /* Soft Glow */
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.25), 0 4px 6px -2px rgba(16, 185, 129, 0.15);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px -1px rgba(16, 185, 129, 0.1);
+}
+
+/* Mobile Menu Toggle */
+.mobile-toggle {
+    display: none;
+    font-size: 1.5rem;
+    background: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    z-index: 1001;
+    border: none;
+    padding: 5px;
+}
+
+/* Responsive Design */
+
+/* Tablet & Smaller Laptops (Max Width: 1024px) */
+@media (max-width: 1024px) {
+    .navbar {
+        padding: 0 1rem;
+    }
+
+    .navbar-menu {
+        display: none;
+        /* Hide default menu */
+    }
+
+    .mobile-toggle {
+        display: block;
+        margin-left: auto;
+    }
+
+    /* Mobile Menu Container */
+    .navbar-menu {
+        position: absolute;
+        top: var(--nav-height);
+        left: 0;
+        width: 100%;
+        height: auto;
+        background-color: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 2rem 1.5rem;
+
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: var(--shadow-lg);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+
+        margin-left: 0;
+    }
+
+    .navbar.scrolled .navbar-menu {
+        top: 64px;
+    }
+
+    /* Shown State */
+    .mobile-open .navbar-menu {
+        display: flex;
+        /* Override display:none */
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .navbar-links {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        width: 100%;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .nav-link {
+        opacity: 1;
+        animation: none;
+        font-size: 1.15rem;
+        padding: 0.5rem 0;
+    }
+
+    .navbar-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+        opacity: 1;
+        animation: none;
+    }
+
+    .navbar-actions button {
+        width: 100%;
+        max-width: 340px;
+        justify-content: center;
+        padding: 0.8rem;
+        /* Touch friendly padding */
+    }
+}
+
+/* Mobile Small (Max Width: 640px) */
+@media (max-width: 640px) {
+    .navbar-logo {
+        margin-left: -0.8rem;
+        /* Optical alignment for logo */
+    }
+
+    .logo-text {
+        font-size: 1.4rem;
+        /* Prominent brand name */
+    }
+
+    .logo-image {
+        height: 6.5rem;
+        /* Larger logo to compensate for internal padding */
+    }
+
+    .navbar {
+        padding: 0 1rem;
+    }
+}
+
+@keyframes navbarFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
