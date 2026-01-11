@@ -1,0 +1,6 @@
+/* Public Accountability Section Styles */
+/* Most styles are handled via Tailwind util classes in the JSX */
+
+.pa-section {
+    /* Optional: Custom bg pattern or override */
+}

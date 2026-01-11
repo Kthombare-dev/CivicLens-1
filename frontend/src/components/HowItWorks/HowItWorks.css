@@ -1,0 +1,297 @@
+/* Main Section */
+.hiw-section {
+    padding: 6rem 1.5rem;
+    background-color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.hiw-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+/* Header */
+.hiw-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    /* mb-16 */
+}
+
+.hiw-title {
+    font-size: 40px;
+    /* text-[40px] */
+    font-weight: 600;
+    /* font-semibold */
+    color: var(--color-primary);
+    letter-spacing: -0.03em;
+    /* tracking-tight */
+    line-height: 1.1;
+    margin: 0;
+}
+
+.hiw-subtitle {
+    font-size: 18px;
+    /* text-[18px] */
+    font-weight: 400;
+    /* font-normal */
+    color: #64748b;
+    /* text-slate-500 */
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0.75rem auto 0 auto;
+    /* mt-3 */
+}
+
+/* Responsive Header */
+@media (max-width: 1024px) {
+    .hiw-title {
+        font-size: 1.875rem;
+        /* 3xl approx */
+    }
+}
+
+@media (max-width: 640px) {
+    .hiw-title {
+        font-size: 26px;
+        /* text-2xl/26px */
+    }
+
+    .hiw-subtitle {
+        font-size: 1rem;
+        /* text-base */
+    }
+
+    .hiw-header {
+        margin-bottom: 3.5rem;
+        /* slightly less on mobile */
+    }
+}
+
+/* Flow Container */
+.hiw-steps-flow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    position: relative;
+}
+
+/* Step Card */
+.hiw-step-card {
+    flex: 1;
+    max-width: 320px;
+    background: var(--bg-surface);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.hiw-step-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.08);
+    /* Soft glow shadow */
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* Magic Glow Background */
+.hiw-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+            rgba(16, 185, 129, 0.06),
+            transparent 40%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hiw-step-card:hover .hiw-glow {
+    opacity: 1;
+}
+
+/* Icon Container */
+.hiw-icon-container {
+    width: 64px;
+    height: 64px;
+    background-color: rgba(16, 185, 129, 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: var(--color-primary-light);
+    transition: all 0.4s ease;
+    border: 1px solid transparent;
+}
+
+.hiw-icon-container.active {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: var(--color-civic-green);
+    border-color: rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+/* Typography */
+.hiw-step-number {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease;
+}
+
+.hiw-step-number.active {
+    color: var(--text-muted);
+}
+
+.hiw-card-title {
+    font-size: 1.125rem;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.hiw-card-desc {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* Connector Wrapper */
+.hiw-connector-wrapper {
+    flex: 0 1 80px;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.3;
+    /* Base opacity */
+    transition: opacity 0.5s ease;
+    padding: 0 0.5rem;
+    position: relative;
+    /* overflow: visible; allow arrow to move */
+}
+
+.hiw-connector-wrapper.active {
+    opacity: 1;
+}
+
+/* Connector Line Base */
+.hiw-connector-line {
+    width: 100%;
+    height: 2px;
+    position: relative;
+    /* Dashed Gray Background for inactive state */
+    background-image: linear-gradient(90deg, #e2e8f0 50%, transparent 50%);
+    background-size: 8px 100%;
+    background-repeat: repeat-x;
+    transform: translateY(1px);
+    overflow: hidden;
+    /* Hide the story line when not active if needed, but we want it to overlay */
+}
+
+/* Connector Story Line (One-time animation) */
+.hiw-connector-story-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: #cbd5e1;
+    /* The story color (slate-300ish) */
+    width: 0%;
+    /* Start width */
+    z-index: 1;
+}
+
+/* Active State: Dashed Green Animation Overrides */
+.hiw-connector-wrapper.active .hiw-connector-line {
+    background-image: linear-gradient(90deg, var(--color-civic-green) 50%, transparent 50%);
+    animation: dashMove 1s linear infinite;
+}
+
+/* When active, hide the story line or color it green? 
+   The active dashed line replaces everything visually.
+   Since background-image is on parent, if z-index of child story line is lower, it might be covered.
+   Let's make sure the active dashed animation takes precedence.
+*/
+.hiw-connector-wrapper.active .hiw-connector-story-line {
+    opacity: 0;
+    /* Hide static story line when active state triggers */
+}
+
+.hiw-arrow {
+    margin-left: -6px;
+    color: #cbd5e1;
+    transition: color 0.3s ease, transform 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.hiw-connector-wrapper.active .hiw-arrow {
+    color: var(--color-civic-green);
+    transform: translateX(4px);
+}
+
+@keyframes dashMove {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 16px 0;
+        /* Positive moves L -> R visually for bg-pos usually */
+    }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .hiw-steps-flow {
+        flex-direction: column;
+        align-items: center;
+        gap: 3rem;
+    }
+
+    .hiw-step-card {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .hiw-connector-wrapper {
+        display: none;
+    }
+
+    .hiw-step-card::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        height: 3rem;
+        width: 2px;
+        background-image: linear-gradient(to bottom, #e2e8f0 50%, transparent 50%);
+        background-size: 100% 12px;
+        transform: translateX(-50%);
+        z-index: 0;
+    }
+
+    .hiw-step-card:last-child::after {
+        display: none;
+    }
+}

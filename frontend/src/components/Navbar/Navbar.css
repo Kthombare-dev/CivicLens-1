@@ -54,7 +54,7 @@
 
 .logo-image {
     /* Preserving User Preference */
-    height: 7rem;
+    height: 2rem;
     width: auto;
     object-fit: contain;
 }

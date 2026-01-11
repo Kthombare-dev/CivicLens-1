@@ -4,7 +4,7 @@ import { AvatarCircles } from "../ui/avatar-circles";
 
 export default function Hero() {
     return (
-        <section className="relative overflow-hidden bg-slate-50 pt-16 pb-20 sm:pt-24 sm:pb-32 lg:pb-40 isolate">
+        <section className="relative overflow-hidden bg-slate-50 py-16 sm:py-24 lg:py-24 isolate">
             {/* --- Background Layers --- */}
 
             {/* 3. Noise Overlay - Reduced Opacity & Changed to simple CSS grain if possible, but keeping SVG with lower opacity */}

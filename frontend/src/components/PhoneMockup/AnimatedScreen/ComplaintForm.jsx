@@ -60,7 +60,7 @@ export default function ComplaintFormScreen() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="space-y-4 font-sans h-full flex flex-col"
+            className="space-y-2 font-sans h-full flex flex-col"
         >
             {/* Header */}
             <motion.div variants={itemVariants}>
@@ -81,7 +81,7 @@ export default function ComplaintFormScreen() {
             {/* Upload Area */}
             <motion.div
                 variants={itemVariants}
-                className={`relative group flex h-20 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all duration-500 ease-out ${uploadState === "done"
+                className={`relative group flex h-16 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed transition-all duration-500 ease-out ${uploadState === "done"
                     ? "border-emerald-500/50 bg-emerald-50/50"
                     : "border-slate-300 bg-slate-50 hover:bg-slate-100"
                     }`}

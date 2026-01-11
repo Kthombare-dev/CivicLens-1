@@ -40,7 +40,7 @@ const Navbar = () => {
         <nav className={`navbar ${scrolled ? 'scrolled' : ''} ${mobileOpen ? 'mobile-open' : ''}`} aria-label="Main Navigation">
             <div className="navbar-container">
                 {/* Logo Section */}
-                <a href="#" className="navbar-logo" aria-label="CivicLens Home">
+                <a href="" className="navbar-logo" aria-label="CivicLens Home">
                     <img src="/CivicLensLogo.png" alt="CivicLens Logo" className="logo-image" />
                     {/* <span className="logo-text">CivicLens</span> */}
                 </a>
