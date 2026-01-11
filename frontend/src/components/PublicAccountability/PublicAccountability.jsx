@@ -28,7 +28,7 @@ const features = [
 const PublicAccountability = () => {
     return (
         <section className="pa-section bg-slate-50 py-24" aria-label="Public Accountability">
-            <div className="mx-auto max-w-[1200px] px-6">
+            <div className="mx-auto max-w-[1400px] px-6">
 
                 {/* Header (Centered) */}
                 <motion.div
@@ -46,15 +46,15 @@ const PublicAccountability = () => {
                     </p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 items-center">
+                <div className="grid grid-cols-1 gap-16 lg:grid-cols-12 items-center">
 
-                    {/* Left: Dashboard Mockup */}
-                    <div className="order-last lg:order-first">
+                    {/* Left: Dashboard Mockup - Allocated more width (7 columns) */}
+                    <div className="order-last lg:order-first lg:col-span-7">
                         <PublicTransparencyDashboard />
                     </div>
 
-                    {/* Right: Accountability Content */}
-                    <div>
+                    {/* Right: Accountability Content - Allocated remaining width (5 columns) */}
+                    <div className="lg:col-span-5">
                         {/* Features List */}
                         <div className="space-y-12">
                             {features.map((feature, index) => {

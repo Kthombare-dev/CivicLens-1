@@ -62,7 +62,7 @@ export default function DesktopDashboardMockup() {
             className="relative w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl transition-all"
         >
             {/* Top Bar */}
-            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 px-6 py-4 gap-4 sm:gap-0">
                 <div>
                     <p className="text-xs uppercase tracking-wide text-slate-400">
                         Public Transparency Dashboard
@@ -82,14 +82,14 @@ export default function DesktopDashboardMockup() {
             </div>
 
             {/* Body */}
-            <div className="grid grid-cols-12">
+            <div className="grid grid-cols-1 md:grid-cols-12">
                 {/* Sidebar */}
-                <div className="col-span-3 border-r border-slate-200 bg-slate-50 px-4 py-6">
+                <div className="col-span-1 border-b md:border-b-0 md:col-span-3 md:border-r border-slate-200 bg-slate-50 px-4 py-6">
                     <p className="mb-4 text-xs font-medium text-slate-500">
                         Overview
                     </p>
 
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-3 md:grid-cols-1 gap-4 space-y-0 md:space-y-4">
                         <SidebarStat label="Total Issues" value="3" />
                         <SidebarStat label="Resolved" value="1" />
                         <SidebarStat label="In Progress" value="1" />
@@ -106,8 +106,8 @@ export default function DesktopDashboardMockup() {
                 </div>
 
                 {/* Main Table */}
-                <div className="col-span-9 px-6 py-6">
-                    <table className="w-full text-sm">
+                <div className="col-span-1 md:col-span-9 px-6 py-6 overflow-x-auto">
+                    <table className="w-full text-sm min-w-[500px]">
                         <thead className="border-b border-slate-200 text-xs font-bold text-slate-700">
                             <tr>
                                 <th className="pb-3 text-left">Issue</th>
@@ -168,7 +168,7 @@ export default function DesktopDashboardMockup() {
 
 function SidebarStat({ label, value }) {
     return (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-1 md:gap-0">
             <span className="text-xs text-slate-500">{label}</span>
             <span className="text-2xl font-bold text-slate-900">
                 {value}
