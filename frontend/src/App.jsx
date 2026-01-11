@@ -3,6 +3,7 @@ import Hero from './components/Hero/Hero';
 import HowItWorks from './components/HowItWorks/HowItWorks';
 import PublicAccountability from './components/PublicAccountability/PublicAccountability';
 import BuiltForEveryone from './components/BuiltForEveryone/BuiltForEveryone';
+import Impact from './components/Impact/Impact';
 import Footer from './components/Footer/Footer';
 
 import './App.css';
@@ -21,6 +22,7 @@ function App() {
         <HowItWorks />
         <PublicAccountability />
         <BuiltForEveryone />
+        <Impact />
         <Footer />
       </div>
     </>

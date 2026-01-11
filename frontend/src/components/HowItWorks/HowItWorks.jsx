@@ -49,8 +49,8 @@ const HowItWorks = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h2 className="hiw-title">How CivicLens Works</h2>
-                    <p className="hiw-subtitle">A transparent, citizen-first complaint lifecycle</p>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-6">How CivicLens Works</h2>
+                    <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">A transparent, citizen-first complaint lifecycle</p>
                 </motion.div>
 
                 {/* Steps Flow */}

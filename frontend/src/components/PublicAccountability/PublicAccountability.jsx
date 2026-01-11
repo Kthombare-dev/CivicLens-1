@@ -27,7 +27,7 @@ const features = [
 
 const PublicAccountability = () => {
     return (
-        <section className="pa-section bg-slate-50 py-24" aria-label="Public Accountability">
+        <section id="transparency" className="pa-section bg-slate-50 py-24" aria-label="Public Accountability">
             <div className="mx-auto max-w-[1400px] px-6">
 
                 {/* Header (Centered) */}
@@ -38,10 +38,10 @@ const PublicAccountability = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl leading-tight mb-4">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-6">
                         Public Accountability, Built In
                     </h2>
-                    <p className="text-lg text-slate-500 leading-relaxed max-w-2xl mx-auto">
+                    <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
                         Every complaint, update, and resolution is publicly visible and verifiable.
                     </p>
                 </motion.div>

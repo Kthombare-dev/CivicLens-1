@@ -33,7 +33,7 @@ const audiences = [
 
 const BuiltForEveryone = () => {
     return (
-        <section className="bg-white py-24 border-t border-slate-100 relative overflow-hidden">
+        <section id="build" className="bg-white py-24 border-t border-slate-100 relative overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-[0.03]"
                 style={{
@@ -52,10 +52,10 @@ const BuiltForEveryone = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                 >
-                    <h2 className="text-4xl font-semibold text-slate-900 tracking-tight mb-6">
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-6">
                         Built for Everyone
                     </h2>
-                    <p className="text-lg text-slate-500 leading-relaxed">
+                    <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
                         A transparent system that empowers citizens and supports municipal teams through shared accountability.
                     </p>
                 </motion.div>

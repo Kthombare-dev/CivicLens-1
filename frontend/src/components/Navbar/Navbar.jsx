@@ -4,7 +4,7 @@ import './Navbar.css';
 const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [currentPath, setCurrentPath] = useState(window.location.pathname);
+    const [activeLink, setActiveLink] = useState('Home');
 
     useEffect(() => {
         const handleScroll = () => {
@@ -15,32 +15,45 @@ const Navbar = () => {
             }
         };
 
-        const handleLocationChange = () => {
-            setCurrentPath(window.location.pathname);
-        };
-
         window.addEventListener('scroll', handleScroll);
-        window.addEventListener('popstate', handleLocationChange);
 
         return () => {
             window.removeEventListener('scroll', handleScroll);
-            window.removeEventListener('popstate', handleLocationChange);
         };
     }, []);
 
     const navLinks = [
-        { name: 'Home', href: '/', type: 'primary' },
-        { name: 'How it Works', href: '/how-it-works', type: 'secondary' },
-        { name: 'Transparency', href: '/transparency', type: 'secondary' },
-        { name: 'For Authorities', href: '/authorities', type: 'tertiary' },
-        { name: 'About', href: '/about', type: 'tertiary' },
+        { name: 'Home', path: '/', targetId: 'home', type: 'primary' },
+        { name: 'How It Works', path: '/how-it-works', targetId: 'how-it-works', type: 'secondary' },
+        { name: 'Transparency', path: '/transparency', targetId: 'build', type: 'secondary' },
+        { name: 'Impact', path: '/impact', targetId: 'impact', type: 'secondary' },
     ];
+
+    const handleNavClick = (e, link) => {
+        e.preventDefault();
+        setActiveLink(link.name);
+        setMobileOpen(false);
+
+        // Update URL
+        window.history.pushState({}, '', link.path);
+
+        // Smooth Scroll
+        const element = document.getElementById(link.targetId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
     return (
         <nav className={`navbar ${scrolled ? 'scrolled' : ''} ${mobileOpen ? 'mobile-open' : ''}`} aria-label="Main Navigation">
             <div className="navbar-container">
                 {/* Logo Section */}
-                <a href="" className="navbar-logo" aria-label="CivicLens Home">
+                <a
+                    href="/"
+                    className="navbar-logo"
+                    aria-label="CivicLens Home"
+                    onClick={(e) => handleNavClick(e, navLinks[0])}
+                >
                     <img src="/CivicLensLogo.png" alt="CivicLens Logo" className="logo-image" />
                     {/* <span className="logo-text">CivicLens</span> */}
                 </a>
@@ -62,14 +75,9 @@ const Navbar = () => {
                         {navLinks.map((link) => (
                             <a
                                 key={link.name}
-                                href={link.href}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    window.history.pushState({}, '', link.href);
-                                    setCurrentPath(link.href);
-                                    setMobileOpen(false); // Close mobile menu on click
-                                }}
-                                className={`nav-link text-${link.type} ${currentPath === link.href ? 'active' : ''}`}
+                                href={link.path}
+                                onClick={(e) => handleNavClick(e, link)}
+                                className={`nav-link ${link.name === activeLink ? 'active' : `text-${link.type}`}`}
                             >
                                 {link.name}
                             </a>
