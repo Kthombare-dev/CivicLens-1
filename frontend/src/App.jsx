@@ -1,31 +1,20 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar/Navbar';
-import Hero from './components/Hero/Hero';
-import HowItWorks from './components/HowItWorks/HowItWorks';
-import PublicAccountability from './components/PublicAccountability/PublicAccountability';
-import BuiltForEveryone from './components/BuiltForEveryone/BuiltForEveryone';
-import Impact from './components/Impact/Impact';
-import Footer from './components/Footer/Footer';
-
+import Home from './pages/Home';
+import Login from './pages/Auth/Login';
+import Signup from './pages/Auth/Signup';
 import './App.css';
 
 function App() {
   return (
-    <>
+    <Router>
       <Navbar />
-
-      {/* Spacer removed so Hero bg covers top */}
-      <div>
-
-        <Hero />
-
-        {/* Long Content to Test Sticky Header */}
-        <HowItWorks />
-        <PublicAccountability />
-        <BuiltForEveryone />
-        <Impact />
-        <Footer />
-      </div>
-    </>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </Router>
   );
 }
 
