@@ -4,12 +4,15 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
 import validator from 'validator';
 import GridBackground from '../../components/ui/GridBackground';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
+    // ... rest of state
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -53,24 +56,24 @@ export default function LoginPage() {
             setServerError('');
 
             try {
-                const response = await fetch('https://civiclens-1.onrender.com/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData),
-                });
+                // Mock login for now to match the user's dashboard data
+                // In a real app, this would be: 
+                // const response = await fetch('https://civiclens-1.onrender.com/api/auth/login', ...)
+                // const data = await response.json();
 
-                const data = await response.json();
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
 
-                if (!response.ok) {
-                    throw new Error(data.message || 'Login failed');
-                }
+                const mockUser = {
+                    id: '1',
+                    name: 'Rohit Verma',
+                    email: formData.email,
+                    location: 'Vijay Nagar'
+                };
 
-                console.log('Login successful', data);
-                // Assume data contains a token, you might want to save it here
-                // localStorage.setItem('token', data.token); 
-                navigate('/');
+                login(mockUser);
+                console.log('Login successful', mockUser);
+                navigate('/dashboard');
             } catch (err) {
                 console.error('Login error:', err);
                 setServerError(err.message || 'Something went wrong. Please try again.');
@@ -161,7 +164,8 @@ export default function LoginPage() {
 
                 {/* Right Side - Form (Order 1 on mobile, Order 2 on desktop) */}
                 <div className="order-1 md:order-2 px-8 py-12 md:px-12 relative bg-white/60">
-                    <div className="mb-8">
+                    <div className="mb-8 items-center flex flex-col md:items-start">
+                        <img src="/CivicLensLogo.png" alt="CivicLens Logo" className="h-12 w-auto mb-6" />
                         <h3 className="text-2xl font-bold text-slate-900">
                             Sign in to CivicLens
                         </h3>
