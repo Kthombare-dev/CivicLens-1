@@ -165,7 +165,7 @@ export default function LoginPage() {
                 {/* Right Side - Form (Order 1 on mobile, Order 2 on desktop) */}
                 <div className="order-1 md:order-2 px-8 py-12 md:px-12 relative bg-white/60">
                     <div className="mb-8 items-center flex flex-col md:items-start">
-                        <img src="/CivicLensLogo.png" alt="CivicLens Logo" className="h-12 w-auto mb-6" />
+                        <img src="/CivicLensLogo.png" alt="CivicLens Logo" className="h-24 w-auto mb-6" />
                         <h3 className="text-2xl font-bold text-slate-900">
                             Sign in to CivicLens
                         </h3>

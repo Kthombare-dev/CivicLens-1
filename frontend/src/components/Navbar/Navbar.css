@@ -53,8 +53,8 @@
 }
 
 .logo-image {
-    /* Preserving User Preference */
-    height: 2rem;
+    /* Bold visibility */
+    height: 5.5rem;
     width: auto;
     object-fit: contain;
 }
@@ -327,7 +327,7 @@
     }
 
     .logo-image {
-        height: 2.25rem;
+        height: 3rem;
         /* Balanced size for mobile */
     }
 

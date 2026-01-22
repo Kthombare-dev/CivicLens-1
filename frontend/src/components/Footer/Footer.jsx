@@ -13,7 +13,7 @@ const Footer = () => {
                             <img
                                 src="/CivicLensLogo.png"
                                 alt="CivicLens Logo"
-                                className="h-10 w-auto"
+                                className="h-14 w-auto"
                             />
                         </a>
                         <p className="text-sm leading-6 text-slate-600 max-w-sm">

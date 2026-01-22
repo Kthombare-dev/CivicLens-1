@@ -8,7 +8,7 @@ import CivicPointsCard from './components/CivicPointsCard';
 import PublicFeed from './components/PublicFeed';
 import ReportIssue from './components/ReportIssue';
 import { useAuth } from '../../context/AuthContext';
-import { Star, Box, CheckCircle } from 'lucide-react';
+import { Star, Box, CheckCircle, Clock, AlertCircle, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Dashboard = () => {
@@ -26,27 +26,34 @@ const Dashboard = () => {
                         className="space-y-10"
                     >
                         {/* Stat Cards Grid */}
-                        <div className="flex gap-8 mt-6">
+                        <div className="flex gap-8 mt-4">
                             <StatCard
-                                title="Active issues"
+                                title="Issues Reported"
+                                value="12"
+                                icon={AlertCircle}
+                                colorClass="text-[#f59e0b]"
+                                iconBgClass="bg-[#fffbeb]"
+                            />
+                            <StatCard
+                                title="Currently In Progress"
                                 value="5"
-                                icon={Box}
+                                icon={Clock}
                                 colorClass="text-[#3b82f6]"
                                 iconBgClass="bg-[#eff6ff]"
                             />
                             <StatCard
-                                title="Resolved"
-                                value="14"
+                                title="Issues Resolved"
+                                value="42"
                                 icon={CheckCircle}
                                 colorClass="text-[#10b981]"
                                 iconBgClass="bg-[#ecfdf5]"
                             />
                             <StatCard
-                                title="Civic points"
-                                value="220"
-                                icon={Star}
-                                colorClass="text-[#f59e0b]"
-                                iconBgClass="bg-[#fffbeb]"
+                                title="Verifications Done"
+                                value="15"
+                                icon={Shield}
+                                colorClass="text-[#6366f1]"
+                                iconBgClass="bg-[#f5f3ff]"
                             />
                         </div>
 
@@ -120,9 +127,14 @@ const Dashboard = () => {
             <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
             {/* Main Content Area */}
-            <div className="flex-1 ml-72 h-full overflow-y-auto scroll-smooth">
-                <div className="max-w-[1400px] mx-auto px-12 py-8">
-                    <Header userName={user?.name || "Rohit Verma"} location={user?.location || "Vijay Nagar"} />
+            <div className="flex-1 lg:ml-72 ml-0 h-full overflow-y-auto scroll-smooth">
+                <div className="max-w-[1400px] mx-auto lg:px-12 px-6 py-8">
+                    <Header
+                        userName={user?.name || "Rohit Verma"}
+                        location={user?.location || "Vijay Nagar"}
+                        activeTab={activeTab}
+                        onReportIssue={() => setActiveTab('Report Issue')}
+                    />
 
                     <AnimatePresence mode="wait">
                         {renderContent()}
