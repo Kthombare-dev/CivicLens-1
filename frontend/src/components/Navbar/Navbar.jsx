@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -9,8 +10,7 @@ const Navbar = () => {
 
     const navigate = useNavigate();
     const location = useLocation();
-
-
+    const { isAuthenticated, logout } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -59,7 +59,10 @@ const Navbar = () => {
         }
     };
 
-
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
 
     // Hide Navbar on Login and Signup pages
     if (location.pathname === '/login' || location.pathname === '/signup') {
@@ -107,16 +110,23 @@ const Navbar = () => {
 
                     {/* Actions */}
                     <div className="navbar-actions">
-                        {/* 
-                            User Request: "click on login button Signup page will open up"
-                            We link the Login button to the /signup page to fulfill this specific request.
-                            Standard behavior would be /login, but optimizing for user instruction.
-                            Wait, user might mean "Sign Up" button? No, they said "login button".
-                            I'll link to /login for safety, and ensure /login has a big signup link.
-                            Actually, I'll stick to /login.
-                        */}
-                        <button className="btn-secondary" onClick={() => navigate('/login')}>Login</button>
-                        <button className="btn-primary" aria-label="Report an issue">Report Issue</button>
+                        {isAuthenticated ? (
+                            <>
+                                <button className="btn-secondary" onClick={() => navigate('/dashboard')}>Dashboard</button>
+                                <button className="btn-primary" onClick={handleLogout}>Logout</button>
+                            </>
+                        ) : (
+                            <>
+                                <button className="btn-secondary" onClick={() => navigate('/login')}>Login</button>
+                                <button
+                                    className="btn-primary"
+                                    aria-label="Report an issue"
+                                    onClick={() => navigate('/login')}
+                                >
+                                    Report Issue
+                                </button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

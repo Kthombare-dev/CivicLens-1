@@ -14,12 +14,11 @@ const statusData = [
     { name: 'Verified & Closed', value: 40, color: '#10b981' },
 ];
 
-// 2. Issues by Category Data
 const categoryData = [
-    { category: 'Potholes', count: 12 },
-    { category: 'Waste', count: 8 },
-    { category: 'Lights', count: 5 },
-    { category: 'Water', count: 7 },
+    { category: 'Potholes', count: 12, color: '#3b82f6' },
+    { category: 'Waste', count: 8, color: '#10b981' },
+    { category: 'Lights', count: 5, color: '#f59e0b' },
+    { category: 'Water', count: 7, color: '#6366f1' },
 ];
 
 // 3. Civic Points Progress Data
@@ -35,10 +34,10 @@ const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
             <div className="bg-white p-4 rounded-2xl shadow-xl border border-slate-50">
-                <p className="font-bold text-slate-800 mb-1">{label || payload[0].name}</p>
+                <p className="font-bold text-slate-800 mb-1">{label || payload[0].name || payload[0].payload.category}</p>
                 {payload.map((entry, index) => (
                     <p key={index} className="text-sm font-medium" style={{ color: entry.color || entry.fill }}>
-                        {entry.name}: {entry.value}
+                        {entry.name || 'Count'}: {entry.value}
                     </p>
                 ))}
             </div>
@@ -50,26 +49,27 @@ const CustomTooltip = ({ active, payload, label }) => {
 const ImpactChart = () => {
     return (
         <div className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* 1. Issue Status Distribution (Donut) */}
+            <div className="grid grid-cols-1 gap-8">
+                {/* 1. Frequent Categories (Pie Chart - Replacing Issue Status) */}
                 <div className="bg-white p-8 rounded-[32px] shadow-[0_4px_30px_rgba(0,0,0,0.05)] border border-white/40">
                     <div className="mb-6">
-                        <h4 className="text-xl font-bold text-slate-800">Issue Status</h4>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">Current Distribution</p>
+                        <h4 className="text-xl font-bold text-slate-800">Frequent Categories</h4>
+                        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">Distribution of Issues</p>
                     </div>
                     <div className="h-64 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={statusData}
+                                    data={categoryData}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={60}
                                     outerRadius={80}
                                     paddingAngle={8}
-                                    dataKey="value"
+                                    dataKey="count"
+                                    nameKey="category"
                                 >
-                                    {statusData.map((entry, index) => (
+                                    {categoryData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                                     ))}
                                 </Pie>
@@ -81,36 +81,6 @@ const ImpactChart = () => {
                                     formatter={(value) => <span className="text-slate-500 font-semibold text-xs ml-1">{value}</span>}
                                 />
                             </PieChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-
-                {/* 2. Issues by Category (Bar Chart) */}
-                <div className="bg-white p-8 rounded-[32px] shadow-[0_4px_30px_rgba(0,0,0,0.05)] border border-white/40">
-                    <div className="mb-6">
-                        <h4 className="text-xl font-bold text-slate-800">Frequent Categories</h4>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">Issues per Type</p>
-                    </div>
-                    <div className="h-64 w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={categoryData} layout="vertical" margin={{ left: 20 }}>
-                                <XAxis type="number" hide />
-                                <YAxis
-                                    dataKey="category"
-                                    type="category"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fill: '#64748b', fontSize: 12, fontWeight: 600 }}
-                                />
-                                <Tooltip cursor={{ fill: '#f8fafc' }} content={<CustomTooltip />} />
-                                <Bar
-                                    dataKey="count"
-                                    fill="#4f46e5"
-                                    radius={[0, 10, 10, 0]}
-                                    barSize={24}
-                                    name="Issues reported"
-                                />
-                            </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>

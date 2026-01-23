@@ -61,13 +61,11 @@ const Dashboard = () => {
                             {/* Left Column */}
                             <div className="col-span-8 space-y-10">
                                 <ImpactChart />
-                                <IssuesTable />
                             </div>
 
                             {/* Right Column */}
                             <div className="col-span-4 space-y-10">
                                 <CivicPointsCard />
-                                <PublicFeed />
                             </div>
                         </div>
                     </motion.div>
@@ -133,7 +131,6 @@ const Dashboard = () => {
                         userName={user?.name || "Rohit Verma"}
                         location={user?.location || "Vijay Nagar"}
                         activeTab={activeTab}
-                        onReportIssue={() => setActiveTab('Report Issue')}
                     />
 
                     <AnimatePresence mode="wait">

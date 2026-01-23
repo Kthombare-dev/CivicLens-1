@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import PhoneMockup from "../PhoneMockup/PhoneMockup";
 import { AvatarCircles } from "../ui/avatar-circles";
 
 export default function Hero() {
+    const navigate = useNavigate();
     return (
         <section id="home" className="relative overflow-hidden bg-slate-50 py-16 sm:py-24 lg:py-24 isolate">
             {/* --- Background Layers --- */}
@@ -96,6 +98,7 @@ export default function Hero() {
                             <motion.button
                                 whileHover={{ scale: 1.02, translateY: -1 }}
                                 whileTap={{ scale: 0.98 }}
+                                onClick={() => navigate('/login')}
                                 className="group relative rounded-full bg-slate-900 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-slate-900/20 hover:shadow-2xl hover:shadow-slate-900/30 transition-all duration-300 overflow-hidden"
                             >
                                 <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
@@ -103,6 +106,7 @@ export default function Hero() {
                             </motion.button>
                             <motion.button
                                 whileHover={{ x: 4 }}
+                                onClick={() => navigate('/dashboard')}
                                 className="group text-sm font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-50 transition-colors"
                             >
                                 View Dashboard
