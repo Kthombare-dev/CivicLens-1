@@ -32,8 +32,8 @@ app.use(mongoSanitize()); // Prevent NoSQL injection
 
 // CORS configuration
 app.use(cors({
-    origin: config.CORS_ORIGIN === '*' ? '*' : config.CORS_ORIGIN.split(','),
-    credentials: true
+    origin: '*',
+    credentials: false
 }));
 
 // Body parser middleware
