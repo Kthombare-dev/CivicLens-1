@@ -29,21 +29,21 @@ class GeminiService {
    */
   async analyzeComplaintImage(imageBase64, userDescription = '') {
     const startTime = Date.now();
-    
+
     try {
       const prompt = this.buildAnalysisPrompt(userDescription);
       const imagePart = this.prepareImagePart(imageBase64);
-      
+
       const result = await this.executeWithRetry(async () => {
         return await this.model.generateContent([prompt, imagePart]);
       });
 
       const response = await result.response;
       const text = response.text();
-      
+
       const analysis = this.parseAnalysisResponse(text);
       const processingTime = Date.now() - startTime;
-      
+
       return {
         ...analysis,
         processingTime,
@@ -52,7 +52,7 @@ class GeminiService {
     } catch (error) {
       const processingTime = Date.now() - startTime;
       console.error('Gemini AI analysis failed:', error);
-      
+
       return this.getFallbackResponse(processingTime, error.message);
     }
   }
@@ -64,21 +64,21 @@ class GeminiService {
    */
   async generateDescription(imageBase64) {
     const startTime = Date.now();
-    
+
     try {
       const prompt = `Analyze this image of a civic issue and provide a clear, detailed description of what you see. 
       Focus on the specific problem, location details, and any relevant context that would help municipal authorities understand and address the issue.
       Respond with only the description text, no additional formatting.`;
-      
+
       const imagePart = this.prepareImagePart(imageBase64);
-      
+
       const result = await this.executeWithRetry(async () => {
         return await this.model.generateContent([prompt, imagePart]);
       });
 
       const response = await result.response;
       const description = response.text().trim();
-      
+
       return {
         description,
         confidence: 0.8, // Default confidence for description generation
@@ -103,20 +103,20 @@ class GeminiService {
    */
   async categorizeComplaint(description, imageBase64) {
     const startTime = Date.now();
-    
+
     try {
       const prompt = this.buildCategorizationPrompt(description);
       const imagePart = this.prepareImagePart(imageBase64);
-      
+
       const result = await this.executeWithRetry(async () => {
         return await this.model.generateContent([prompt, imagePart]);
       });
 
       const response = await result.response;
       const text = response.text();
-      
+
       const categorization = this.parseCategorizationResponse(text);
-      
+
       return {
         ...categorization,
         processingTime: Date.now() - startTime
@@ -144,19 +144,19 @@ class GeminiService {
    */
   async executeWithRetry(fn) {
     let lastError;
-    
+
     for (let attempt = 0; attempt < this.maxRetries; attempt++) {
       try {
         // Set timeout for the operation
         const timeoutPromise = new Promise((_, reject) => {
           setTimeout(() => reject(new Error('Operation timeout')), this.timeout);
         });
-        
+
         const result = await Promise.race([fn(), timeoutPromise]);
         return result;
       } catch (error) {
         lastError = error;
-        
+
         if (attempt < this.maxRetries - 1) {
           const delay = this.baseDelay * Math.pow(2, attempt);
           console.log(`Retry attempt ${attempt + 1} after ${delay}ms delay`);
@@ -164,7 +164,7 @@ class GeminiService {
         }
       }
     }
-    
+
     throw lastError;
   }
 
@@ -181,6 +181,8 @@ class GeminiService {
       "category": "One of: Roads, Sanitation, Water, Electricity, Streetlights, Garbage, Other",
       "priority": "One of: Low, Medium, High",
       "department": "One of: WASTE_MANAGEMENT, ROAD_INFRASTRUCTURE, STREETLIGHT_ELECTRICAL, WATER_SEWERAGE, SANITATION_PUBLIC_HEALTH, PARKS_GARDENS, ENCROACHMENT, TRAFFIC_SIGNAGE, GENERAL",
+      "estimatedResolutionTime": "e.g., '24 hours', '3 days', '1 week'",
+      "estimatedDays": 3,
       "confidence": {
         "description": 0.0-1.0,
         "category": 0.0-1.0,
@@ -196,6 +198,12 @@ class GeminiService {
     ${userDescription ? `Additional context from user: ${userDescription}` : ''}
     
     Guidelines:
+    - **ROLE**: Act as a Senior Municipal Corporation Engineer or City Official.
+    - **TIMELINE**: Provide realistic resolution 
+    times based on official government protocols, procurement cycles, and workforce availability. Do NOT be overly optimistic.
+      - Minor issues (e.g., garbage, small pothole): 24-48 hours.
+      - Medium issues (e.g., street light repair, pipe leak): 3-7 days.
+      - Major issues (e.g., road resurfacing, major drainage): 15-45 days (consider tendering/approval).
     - Be specific and factual in descriptions
     - Consider severity when assigning priority
     - Use confidence scores to indicate certainty
@@ -217,6 +225,7 @@ class GeminiService {
       "category": "One of: Roads, Sanitation, Water, Electricity, Streetlights, Garbage, Other",
       "department": "One of: WASTE_MANAGEMENT, ROAD_INFRASTRUCTURE, STREETLIGHT_ELECTRICAL, WATER_SEWERAGE, SANITATION_PUBLIC_HEALTH, PARKS_GARDENS, ENCROACHMENT, TRAFFIC_SIGNAGE, GENERAL",
       "priority": "One of: Low, Medium, High",
+      "estimatedResolutionTime": "e.g., '2 days'",
       "confidence": {
         "category": 0.0-1.0,
         "priority": 0.0-1.0
@@ -243,7 +252,7 @@ class GeminiService {
   prepareImagePart(imageBase64) {
     // Remove data URL prefix if present
     const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
-    
+
     return {
       inlineData: {
         data: base64Data,
@@ -264,7 +273,7 @@ class GeminiService {
         return `image/${match[1]}`;
       }
     }
-    
+
     // Default to JPEG if unable to detect
     return 'image/jpeg';
   }
@@ -281,9 +290,9 @@ class GeminiService {
       if (!jsonMatch) {
         throw new Error('No JSON found in response');
       }
-      
+
       const parsed = JSON.parse(jsonMatch[0]);
-      
+
       const category = this.validateCategory(parsed.category);
       const priority = this.validatePriority(parsed.priority);
       const department = this.normalizeDepartment(parsed.department, category);
@@ -294,6 +303,8 @@ class GeminiService {
         category,
         priority,
         department,
+        estimatedResolutionTime: parsed.estimatedResolutionTime || '3-5 days',
+        estimatedDays: typeof parsed.estimatedDays === 'number' ? parsed.estimatedDays : 3,
         confidence: {
           description: Math.min(Math.max(parsed.confidence?.description || 0.5, 0), 1),
           category: Math.min(Math.max(parsed.confidence?.category || 0.5, 0), 1),
@@ -318,9 +329,9 @@ class GeminiService {
       if (!jsonMatch) {
         throw new Error('No JSON found in response');
       }
-      
+
       const parsed = JSON.parse(jsonMatch[0]);
-      
+
       const category = this.validateCategory(parsed.category);
       const priority = this.validatePriority(parsed.priority);
       const department = this.normalizeDepartment(parsed.department, category);

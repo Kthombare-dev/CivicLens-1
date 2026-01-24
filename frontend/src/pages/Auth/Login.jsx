@@ -56,23 +56,28 @@ export default function LoginPage() {
             setServerError('');
 
             try {
-                // Mock login for now to match the user's dashboard data
-                // In a real app, this would be: 
-                // const response = await fetch('https://civiclens-1.onrender.com/api/auth/login', ...)
-                // const data = await response.json();
+                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
 
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                const data = await response.json();
 
-                const mockUser = {
-                    id: '1',
-                    name: 'Rohit Verma',
-                    email: formData.email,
-                    location: 'Vijay Nagar'
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
+                }
+
+                // data.data contains { token, user } from backend sendSuccess helper
+                // We need to store both to use the token for requests
+                const authData = {
+                    token: data.data.token,
+                    ...data.data.user
                 };
 
-                login(mockUser);
-                console.log('Login successful', mockUser);
+                login(authData);
                 navigate('/dashboard');
             } catch (err) {
                 console.error('Login error:', err);

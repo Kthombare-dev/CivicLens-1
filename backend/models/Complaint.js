@@ -20,15 +20,15 @@ const ComplaintSchema = new mongoose.Schema({
     },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    location: { type: String}, // Lat/Lng string or object
-    address: { type: String, required: true}, // Human readable address
+    location: { type: String }, // Lat/Lng string or object
+    address: { type: String, required: true }, // Human readable address
 
     images: [{ type: String }], // Public paths to stored images. Index 0 = Before. Index 1 = After (if resolved)
 
     status: {
         type: String,
-        enum: ['Submitted', 'In Progress', 'Resolved', 'Rejected'],
-        default: 'Submitted',
+        enum: ['Submitted', 'Assigned', 'In Progress', 'Resolved', 'Rejected'],
+        default: 'Assigned',
     },
 
     // AI Fields
@@ -42,6 +42,7 @@ const ComplaintSchema = new mongoose.Schema({
         category: String,
         priority: String,
         department: { type: String, enum: DEPARTMENTS, default: 'GENERAL' },
+        estimatedResolutionTime: String, // "3 days", "1 week"
         confidence: {
             description: { type: Number, default: 0 },
             category: { type: Number, default: 0 },
@@ -54,6 +55,8 @@ const ComplaintSchema = new mongoose.Schema({
 
     // Community Validation
     votes: { type: Number, default: 0 },
+
+    expectedResolutionDate: { type: Date }, // Calculated based on AI estimate
     verifiedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users who verified the fix
 
     // Lifecycle

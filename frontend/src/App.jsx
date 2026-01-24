@@ -3,7 +3,7 @@ import Navbar from './components/Navbar/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
-import Dashboard from './pages/Dashboard/Dashboard';
+import Dashboard from './pages/citizenDashboard/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 

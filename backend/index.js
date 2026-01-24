@@ -4,6 +4,15 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
+const dns = require('dns');
+
+// Force usage of Google DNS to bypass potential local DNS restrictions on SRV records
+try {
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+    console.log('Using Google DNS for resolution');
+} catch (e) {
+    console.warn('Could not set custom DNS servers:', e.message);
+}
 const config = require('./config/env');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const serviceFactory = require('./services/serviceFactory');
@@ -16,7 +25,9 @@ const complaintRoutes = require('./routes/complaints');
 const app = express();
 
 // Security middleware
-app.use(helmet()); // Set security headers
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+})); // Set security headers with cross-origin access for images
 app.use(mongoSanitize()); // Prevent NoSQL injection
 
 // CORS configuration
@@ -111,7 +122,7 @@ app.get('/health/services', async (req, res) => {
     try {
         const health = await serviceFactory.performHealthCheck();
         const stats = serviceFactory.getServiceStats();
-        
+
         res.json({
             success: true,
             health,
@@ -142,7 +153,7 @@ async function startServer() {
     try {
         console.log('Initializing AI and Location services...');
         const initResult = await serviceFactory.initialize();
-        
+
         if (initResult.success) {
             console.log('✓ Services initialized successfully');
             if (initResult.warnings && initResult.warnings.length > 0) {
@@ -153,7 +164,7 @@ async function startServer() {
             console.warn('⚠ Service initialization failed, but server will continue with fallback behavior');
             console.warn(`  Error: ${initResult.error}`);
         }
-        
+
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT} in ${config.NODE_ENV} mode`);
         });
