@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import StatCard from './components/StatCard';
@@ -8,6 +8,7 @@ import CivicPointsCard from './components/CivicPointsCard';
 import PublicFeed from './components/PublicFeed';
 import ReportIssue from './components/ReportIssue';
 import { useAuth } from '../../context/AuthContext';
+import { complaintService } from '../../services/complaintService';
 import { Star, Box, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,6 +16,40 @@ const Dashboard = () => {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('Home');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [dashboardData, setDashboardData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchDashboardData = async () => {
+        try {
+            setLoading(true);
+            const data = await complaintService.getDashboardData();
+            setDashboardData(data);
+            setError(null);
+        } catch (err) {
+            console.error('Failed to fetch dashboard data:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, []);
+
+    // Refresh dashboard when switching to Home tab (but not on initial mount)
+    const isInitialMount = React.useRef(true);
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+        if (activeTab === 'Home') {
+            fetchDashboardData();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab]);
 
     const renderContent = () => {
         switch (activeTab) {
@@ -30,21 +65,21 @@ const Dashboard = () => {
                         <div className="flex gap-8 mt-6 overflow-x-auto pb-4 lg:pb-0">
                             <StatCard
                                 title="Active issues"
-                                value="5"
+                                value={dashboardData?.statistics?.activeIssues?.toString() || "0"}
                                 icon={Box}
                                 colorClass="text-[#3b82f6]"
                                 iconBgClass="bg-[#eff6ff]"
                             />
                             <StatCard
                                 title="Resolved"
-                                value="14"
+                                value={dashboardData?.statistics?.resolvedIssues?.toString() || "0"}
                                 icon={CheckCircle}
                                 colorClass="text-[#10b981]"
                                 iconBgClass="bg-[#ecfdf5]"
                             />
                             <StatCard
                                 title="Civic points"
-                                value="220"
+                                value={dashboardData?.statistics?.civicPoints?.toString() || "0"}
                                 icon={Star}
                                 colorClass="text-[#f59e0b]"
                                 iconBgClass="bg-[#fffbeb]"
@@ -54,13 +89,16 @@ const Dashboard = () => {
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
                             {/* Left Column */}
                             <div className="col-span-1 md:col-span-8 space-y-10">
-                                <ImpactChart />
+                                <ImpactChart data={dashboardData?.impactGraph?.weeks || []} />
                                 <IssuesTable />
                             </div>
 
                             {/* Right Column */}
                             <div className="col-span-1 md:col-span-4 space-y-10">
-                                <CivicPointsCard />
+                                <CivicPointsCard 
+                                    totalPoints={dashboardData?.statistics?.civicPoints || 0}
+                                    activities={dashboardData?.recentActivities || []}
+                                />
                                 <PublicFeed />
                             </div>
                         </div>
@@ -96,7 +134,10 @@ const Dashboard = () => {
                         exit={{ opacity: 0, x: -20 }}
                         className="pt-6"
                     >
-                        <CivicPointsCard />
+                        <CivicPointsCard 
+                            totalPoints={dashboardData?.statistics?.civicPoints || 0}
+                            activities={dashboardData?.recentActivities || []}
+                        />
                     </motion.div>
                 );
             case 'Public Feed':
@@ -139,16 +180,26 @@ const Dashboard = () => {
             <div className="flex-1 lg:ml-72 h-full overflow-y-auto scroll-smooth w-full bg-[#f8fafc]">
                 <div className="max-w-[1600px] mx-auto px-6 md:px-10 py-10">
                     <Header
-                        userName={user?.name || "Rohit Verma"}
-                        location={user?.location || "Vijay Nagar"}
+                        userName={dashboardData?.user?.name || user?.name || "User"}
+                        location={dashboardData?.user?.location || user?.location || "Location not available"}
                         activeTab={activeTab}
                         onMenuClick={() => setIsSidebarOpen(true)}
                     />
 
 
-                    <AnimatePresence mode="wait">
-                        {renderContent()}
-                    </AnimatePresence>
+                    {loading ? (
+                        <div className="flex items-center justify-center h-64">
+                            <div className="text-slate-400 font-medium">Loading dashboard...</div>
+                        </div>
+                    ) : error ? (
+                        <div className="flex items-center justify-center h-64">
+                            <div className="text-red-500 font-medium">Error: {error}</div>
+                        </div>
+                    ) : (
+                        <AnimatePresence mode="wait">
+                            {renderContent()}
+                        </AnimatePresence>
+                    )}
                 </div>
             </div>
         </div>

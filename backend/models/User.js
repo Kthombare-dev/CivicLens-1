@@ -43,6 +43,12 @@ const UserSchema = new mongoose.Schema({
         type: String,
         // Only required if role is official, can be enforced in application logic
     },
+    // Citizen's area/ward for nearby feed (e.g. "Juni Indore", "Vijay Nagar")
+    area: {
+        type: String,
+        trim: true,
+        default: null
+    },
     isActive: {
         type: Boolean,
         default: true,

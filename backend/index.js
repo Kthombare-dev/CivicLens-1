@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -20,6 +21,7 @@ const serviceFactory = require('./services/serviceFactory');
 // Import routes
 const authRoutes = require('./routes/auth');
 const complaintRoutes = require('./routes/complaints');
+const dashboardRoutes = require('./routes/dashboard');
 
 // Initialize Express app
 const app = express();
@@ -42,6 +44,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static file serving for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Ensure verifications directory exists
+const verificationsPath = path.join(__dirname, 'uploads', 'verifications');
+if (!fs.existsSync(verificationsPath)) {
+    fs.mkdirSync(verificationsPath, { recursive: true });
+}
 
 // MongoDB connection with Atlas-optimized options
 const mongooseOptions = {
@@ -107,6 +114,7 @@ if (isAtlasConnection) {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

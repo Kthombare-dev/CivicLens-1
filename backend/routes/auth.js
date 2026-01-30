@@ -25,7 +25,7 @@ const { sendPasswordResetOTP } = require('../utils/emailService');
  */
 router.post('/register', registerLimiter, registerValidation, async (req, res) => {
     try {
-        const { name, email, phone, password } = req.body;
+        const { name, email, phone, password, area } = req.body;
 
         // Check if email already exists
         const existingUserByEmail = await User.findOne({ email });
@@ -49,7 +49,8 @@ router.post('/register', registerLimiter, registerValidation, async (req, res) =
             email,
             phone,
             password: hashedPassword,
-            role: 'citizen'
+            role: 'citizen',
+            ...(area && area.trim() ? { area: area.trim() } : {})
         });
 
         await user.save();

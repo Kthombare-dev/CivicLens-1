@@ -166,5 +166,226 @@ export const complaintService = {
         // API_URL is http://localhost:5000/api, we need http://localhost:5000
         const baseUrl = API_URL.replace('/api', '');
         return `${baseUrl}${path}`;
+    },
+
+    /**
+     * Get dashboard data for authenticated user
+     */
+    getDashboardData: async () => {
+        try {
+            const response = await fetch(`${API_URL}/dashboard`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch dashboard data');
+            }
+
+            return data.data; // Backend returns { success: true, data: {...} }
+        } catch (error) {
+            console.error('Error in getDashboardData:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get nearby open/active complaints
+     */
+    getNearbyComplaints: async (latitude, longitude, radius = 5, area = null) => {
+        try {
+            const queryParams = new URLSearchParams();
+            if (latitude) queryParams.append('latitude', latitude);
+            if (longitude) queryParams.append('longitude', longitude);
+            queryParams.append('radius', radius);
+            if (area && area.trim()) queryParams.append('area', area.trim());
+
+            const response = await fetch(`${API_URL}/complaints/nearby?${queryParams.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch nearby complaints');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error in getNearbyComplaints:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get verifiable complaints (resolved, nearby, not user's own)
+     */
+    getVerifiableComplaints: async (latitude, longitude, radius = 5, area = null) => {
+        try {
+            const queryParams = new URLSearchParams();
+            if (latitude) queryParams.append('latitude', latitude);
+            if (longitude) queryParams.append('longitude', longitude);
+            queryParams.append('radius', radius);
+            if (area && area.trim()) queryParams.append('area', area.trim());
+
+            const response = await fetch(`${API_URL}/complaints/verifiable?${queryParams.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch verifiable complaints');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error in getVerifiableComplaints:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Submit verification for a resolved complaint with image
+     * @param {string} complaintId - ID of the complaint to verify
+     * @param {FormData} formData - Must contain 'verificationImage', optional 'verificationLocation', 'verificationAddress'
+     */
+    submitVerification: async (complaintId, formData) => {
+        try {
+            const response = await fetch(`${API_URL}/complaints/${complaintId}/verify`, {
+                method: 'POST',
+                headers: {
+                    ...getAuthHeaders()
+                    // Content-Type is set automatically for FormData
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to submit verification');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error in submitVerification:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Like/unlike a complaint
+     */
+    likeComplaint: async (complaintId) => {
+        try {
+            const response = await fetch(`${API_URL}/complaints/${complaintId}/vote`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to like complaint');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error in likeComplaint:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Add a comment to a complaint
+     */
+    addComment: async (complaintId, text) => {
+        try {
+            const response = await fetch(`${API_URL}/complaints/${complaintId}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                },
+                body: JSON.stringify({ text })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to add comment');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error in addComment:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get comments for a complaint
+     */
+    getComments: async (complaintId) => {
+        try {
+            const response = await fetch(`${API_URL}/complaints/${complaintId}/comments`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch comments');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error in getComments:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Like/unlike a comment
+     */
+    likeComment: async (complaintId, commentId) => {
+        try {
+            const response = await fetch(`${API_URL}/complaints/${complaintId}/comments/${commentId}/like`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to like comment');
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error in likeComment:', error);
+            throw error;
+        }
     }
 };

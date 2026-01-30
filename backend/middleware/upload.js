@@ -6,9 +6,11 @@ const { getConfig } = require('../config/services');
 const servicesConfig = getConfig();
 const uploadsRoot = path.join(__dirname, '..', 'uploads');
 const complaintsUploadPath = path.join(uploadsRoot, 'complaints');
+const verificationsUploadPath = path.join(uploadsRoot, 'verifications');
 
 // Ensure upload directories exist
 fs.mkdirSync(complaintsUploadPath, { recursive: true });
+fs.mkdirSync(verificationsUploadPath, { recursive: true });
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, complaintsUploadPath),
@@ -36,8 +38,28 @@ const upload = multer({
   }
 });
 
+// Storage for verification images
+const verificationStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, verificationsUploadPath),
+  filename: (_req, file, cb) => {
+    const timestamp = Date.now();
+    const safeName = file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
+    cb(null, `${timestamp}-${safeName}`);
+  }
+});
+
+const verificationUpload = multer({
+  storage: verificationStorage,
+  fileFilter,
+  limits: {
+    fileSize: servicesConfig.gemini.maxImageSize || 10 * 1024 * 1024
+  }
+});
+
 module.exports = {
   upload,
-  complaintsUploadPath
+  verificationUpload,
+  complaintsUploadPath,
+  verificationsUploadPath
 };
 

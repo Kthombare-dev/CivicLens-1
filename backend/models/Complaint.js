@@ -55,9 +55,29 @@ const ComplaintSchema = new mongoose.Schema({
 
     // Community Validation
     votes: { type: Number, default: 0 },
-
+    votedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users who voted/liked
+    
+    // Comments
+    commentCount: { type: Number, default: 0 },
+    
+    // Engagement & Trending
+    engagementScore: { type: Number, default: 0 }, // Calculated: votes + (comments * 2) + (views * 0.1)
+    trendScore: { type: Number, default: 0 }, // Time-weighted engagement score
+    lastEngagementAt: { type: Date, default: Date.now }, // Last time someone interacted
+    isTrending: { type: Boolean, default: false }, // Auto-set based on trendScore
+    priorityBoost: { type: Number, default: 0 }, // Auto-escalation boost (0-2 levels)
+    
     expectedResolutionDate: { type: Date }, // Calculated based on AI estimate
     verifiedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users who verified the fix
+    
+    // Verification System
+    verificationSubmissions: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'VerificationSubmission'
+    }],
+    verificationCount: { type: Number, default: 0 }, // Number of approved verifications
+    trustScore: { type: Number, default: 0, min: 0, max: 100 }, // Overall trust score based on verifications
+    isVerified: { type: Boolean, default: false }, // True if has minimum required verifications
 
     // Lifecycle
     timeline: [{

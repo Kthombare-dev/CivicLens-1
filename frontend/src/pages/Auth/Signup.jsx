@@ -10,7 +10,8 @@ export default function Signup() {
         name: '',
         email: '',
         phone: '',
-        password: ''
+        password: '',
+        area: ''
     });
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
@@ -182,7 +183,7 @@ export default function Signup() {
                 {/* Right Side (Order 1 on mobile, Order 2 on desktop) */}
                 <div className="order-1 md:order-2 px-8 py-12 md:px-12 relative bg-white/60">
                     <div className="mb-8 items-center flex flex-col md:items-start">
-                        <img src="/CivicLensLogo.png" alt="CivicLens Logo" className="h-24 w-auto mb-6" />
+                        <img src="/CivicLensLogo.png" alt="CivicLens Logo" className="h-24 w-auto mb-3" />
                         <h3 className="text-2xl font-bold text-slate-900">
                             Create your account
                         </h3>
@@ -235,6 +236,21 @@ export default function Signup() {
                                 className={`w-full rounded-xl border ${errors.phone ? 'border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/10'} bg-slate-50/50 px-4 py-2.5 text-sm transition-all duration-200 focus:bg-white focus:outline-none focus:ring-4`}
                             />
                             {errors.phone && <p className="mt-1 text-xs text-red-500 font-medium">{errors.phone}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                Area / Ward <span className="text-slate-400 font-normal">(optional)</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="area"
+                                value={formData.area}
+                                onChange={handleChange}
+                                placeholder="e.g. Juni Indore, Vijay Nagar"
+                                className="w-full rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-emerald-500/10 bg-slate-50/50 px-4 py-2.5 text-sm transition-all duration-200 focus:bg-white focus:outline-none focus:ring-4"
+                            />
+                            <p className="mt-1 text-xs text-slate-500">Helps show nearby issues and verifications in your area.</p>
                         </div>
 
                         <div>

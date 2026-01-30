@@ -76,29 +76,43 @@ const ReportIssue = () => {
         navigator.geolocation.getCurrentPosition(async (position) => {
             const { latitude, longitude } = position.coords;
             try {
-                // Using the key provided by user directly
-                const API_KEY = "AIzaSyACJMzQFOLWkMCv5jQVLDdaz1Qr8JqnWKk";
-                const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${API_KEY}`);
-                const data = await response.json();
+                // Use OpenStreetMap Nominatim (free, no API key required)
+                // This is more reliable and doesn't require API setup
+                const osmResponse = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+                    {
+                        headers: {
+                            'User-Agent': 'CivicLens-App/1.0',
+                            'Accept-Language': 'en'
+                        }
+                    }
+                );
 
-                if (data.status === "OK" && data.results?.[0]) {
-                    setLocation(data.results[0].formatted_address);
+                if (!osmResponse.ok) {
+                    throw new Error('Geocoding service unavailable');
+                }
+
+                const osmData = await osmResponse.json();
+                
+                if (osmData && osmData.display_name) {
+                    setLocation(osmData.display_name);
                 } else {
-                    console.error("Geocoding failed:", data);
-                    setLocation(originalPlaceholder || "");
-                    alert("Could not detect address from coordinates.");
+                    // Fallback to coordinates if address not found
+                    setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                    alert("Could not get address name, but coordinates are saved. You can edit the location manually.");
                 }
             } catch (error) {
                 console.error("Geocoding error:", error);
-                setLocation(originalPlaceholder || "");
-                alert("Failed to fetch address.");
+                // Fallback: Use coordinates directly
+                setLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                alert("Could not fetch address name, but coordinates are saved. Please enter the address manually or keep the coordinates.");
             } finally {
                 if (btn) btn.disabled = false;
             }
         }, (error) => {
             console.error("Geolocation error:", error);
             setLocation(originalPlaceholder || "");
-            alert("Location access denied or unavailable.");
+            alert("Location access denied or unavailable. Please enter your location manually.");
             if (btn) btn.disabled = false;
         });
     };
@@ -110,6 +124,16 @@ const ReportIssue = () => {
 
         if (!title || !description || !location || !image) {
             alert('Please fill in all fields.');
+            return;
+        }
+
+        // Validate that location is not a placeholder
+        const locationLower = location.toLowerCase().trim();
+        if (locationLower.includes('detecting location') || 
+            locationLower === 'add location' || 
+            locationLower === 'enter location' ||
+            locationLower === '') {
+            alert('Please provide a valid location. Use the location button to detect your current location, or enter it manually.');
             return;
         }
 
