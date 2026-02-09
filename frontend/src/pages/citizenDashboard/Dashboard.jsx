@@ -90,17 +90,17 @@ const Dashboard = () => {
                             {/* Left Column */}
                             <div className="col-span-1 md:col-span-8 space-y-10">
                                 <ImpactChart data={dashboardData?.impactGraph?.weeks || []} />
-                                <IssuesTable />
                             </div>
+
 
                             {/* Right Column */}
                             <div className="col-span-1 md:col-span-4 space-y-10">
-                                <CivicPointsCard 
+                                <CivicPointsCard
                                     totalPoints={dashboardData?.statistics?.civicPoints || 0}
                                     activities={dashboardData?.recentActivities || []}
                                 />
-                                <PublicFeed />
                             </div>
+
                         </div>
                     </motion.div>
                 );
@@ -134,7 +134,7 @@ const Dashboard = () => {
                         exit={{ opacity: 0, x: -20 }}
                         className="pt-6"
                     >
-                        <CivicPointsCard 
+                        <CivicPointsCard
                             totalPoints={dashboardData?.statistics?.civicPoints || 0}
                             activities={dashboardData?.recentActivities || []}
                         />
@@ -157,27 +157,49 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="flex h-screen bg-[#F8FAFC] font-['Inter',_sans-serif] overflow-hidden">
-            {/* Sidebar Overlay for Mobile */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 lg:hidden glass"
-                    onClick={() => setIsSidebarOpen(false)}
+        <div className="min-h-screen bg-[#F8FAFC] font-['Inter',_sans-serif]">
+            {/* Sidebar for Desktop */}
+            <div className={`hidden lg:block`}>
+                <Sidebar
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    isOpen={true}
                 />
-            )}
+            </div>
 
-            {/* Sidebar */}
-            <Sidebar
-                activeTab={activeTab}
-                onTabChange={(tab) => {
-                    setActiveTab(tab);
-                    setIsSidebarOpen(false);
-                }}
-                isOpen={isSidebarOpen}
-            />
+            {/* Mobile Sidebar (Collapsible) */}
+            <AnimatePresence>
+                {isSidebarOpen && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
+                            onClick={() => setIsSidebarOpen(false)}
+                        />
+                        <motion.div
+                            initial={{ x: -288 }}
+                            animate={{ x: 0 }}
+                            exit={{ x: -288 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="fixed inset-y-0 left-0 z-50 lg:hidden"
+                        >
+                            <Sidebar
+                                activeTab={activeTab}
+                                onTabChange={(tab) => {
+                                    setActiveTab(tab);
+                                    setIsSidebarOpen(false);
+                                }}
+                                isOpen={true}
+                            />
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
 
             {/* Main Content Area */}
-            <div className="flex-1 lg:ml-72 h-full overflow-y-auto scroll-smooth w-full bg-[#f8fafc]">
+            <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:pl-72' : 'lg:pl-72'}`}>
                 <div className="max-w-[1600px] mx-auto px-6 md:px-10 py-10">
                     <Header
                         userName={dashboardData?.user?.name || user?.name || "User"}
@@ -185,7 +207,6 @@ const Dashboard = () => {
                         activeTab={activeTab}
                         onMenuClick={() => setIsSidebarOpen(true)}
                     />
-
 
                     {loading ? (
                         <div className="flex items-center justify-center h-64">
@@ -205,5 +226,6 @@ const Dashboard = () => {
         </div>
     );
 };
+
 
 export default Dashboard;

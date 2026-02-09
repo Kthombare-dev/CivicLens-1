@@ -4,12 +4,13 @@ import Home from './pages/Home';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import Dashboard from './pages/citizenDashboard/Dashboard';
+import AdminDashboard from './pages/adminDashboard/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 function AppContent() {
   const location = useLocation();
-  const isDashboard = location.pathname.startsWith('/dashboard');
+  const isDashboard = location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin');
 
   return (
     <>
@@ -26,10 +27,19 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );
 }
+
 
 function App() {
   return (
