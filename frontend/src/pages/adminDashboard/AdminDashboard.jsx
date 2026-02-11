@@ -57,18 +57,12 @@ const AdminDashboard = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-8"
+                        className="space-y-10"
                     >
                         <StatCardsGrid stats={data.stats} />
 
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            <div className="lg:col-span-8 space-y-8">
-                                <RecentComplaints complaints={data.complaints} />
-                                <UserManagement users={data.users} />
-                            </div>
-                            <div className="lg:col-span-4">
-                                <AnalyticsPanels analytics={data.analytics} />
-                            </div>
+                        <div className="grid grid-cols-1 gap-10">
+                            <AnalyticsPanels analytics={data.analytics} />
                         </div>
                     </motion.div>
                 );
@@ -120,7 +114,7 @@ const AdminDashboard = () => {
             </AnimatePresence>
 
             {/* Main Content */}
-            <main className={`transition-all duration-300 ${isSidebarOpen ? 'lg:pl-72' : 'lg:pl-0'}`}>
+            <main className="transition-all duration-300 lg:pl-64">
 
                 <TopNavbar
                     title={activeTab}

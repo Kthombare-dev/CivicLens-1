@@ -19,13 +19,13 @@ const StatCard = ({ title, value, icon: Icon, color, trend }) => {
     };
 
     return (
-        <div className="bg-white p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-50 flex items-center gap-5 group hover:translate-y-[-2px] transition-all">
-            <div className={`p-4 rounded-xl ${lightColorClasses[color] || 'bg-slate-50'} group-hover:scale-110 transition-transform`}>
-                <Icon className="w-6 h-6" />
+        <div className={`p-5 rounded-2xl border transition-all duration-300 flex items-center gap-4 group hover:shadow-lg ${lightColorClasses[color] || 'bg-white border-slate-50'}`}>
+            <div className={`p-4 rounded-xl bg-white shadow-sm group-hover:scale-110 transition-transform flex-shrink-0`}>
+                <Icon className="w-5 h-5" />
             </div>
-            <div>
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-1">{title}</p>
-                <h3 className="text-2xl font-black text-slate-800 tabular-nums">{value.toLocaleString()}</h3>
+            <div className="flex flex-col min-w-0">
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-[9px] mb-0.5 whitespace-nowrap">{title}</p>
+                <h3 className="text-xl font-black text-slate-800 tabular-nums leading-none">{value.toLocaleString()}</h3>
             </div>
         </div>
     );
@@ -33,34 +33,34 @@ const StatCard = ({ title, value, icon: Icon, color, trend }) => {
 
 const StatCardsGrid = ({ stats }) => {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8 mb-10">
             <StatCard
                 title="Total Users"
-                value={stats.totalUsers}
+                value={stats?.totalUsers || 0}
                 icon={Users}
                 color="emerald"
             />
             <StatCard
                 title="Complaints"
-                value={stats.totalComplaints}
+                value={stats?.totalComplaints || 0}
                 icon={FileText}
                 color="teal"
             />
             <StatCard
                 title="Active"
-                value={stats.activeComplaints}
+                value={stats?.activeComplaints || 0}
                 icon={Activity}
                 color="indigo"
             />
             <StatCard
                 title="Resolved"
-                value={stats.resolvedComplaints}
+                value={stats?.resolvedComplaints || 0}
                 icon={CheckCircle}
                 color="emerald"
             />
             <StatCard
                 title="Pending"
-                value={stats.pendingComplaints}
+                value={stats?.pendingComplaints || 0}
                 icon={Clock}
                 color="amber"
             />

@@ -20,7 +20,7 @@ const Sidebar = ({ activeTab = 'Home', onTabChange, isOpen }) => {
   ];
 
   return (
-    <aside className={`w-72 fixed inset-y-0 left-0 bg-white border-r border-slate-50 flex flex-col z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+    <aside className={`w-64 fixed inset-y-0 left-0 bg-white border-r border-slate-50 flex flex-col z-50 transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
       {/* Brand Logo */}
       {/* Brand Logo */}

@@ -199,7 +199,7 @@ const Dashboard = () => {
             </AnimatePresence>
 
             {/* Main Content Area */}
-            <div className={`transition-all duration-300 ${isSidebarOpen ? 'lg:pl-72' : 'lg:pl-72'}`}>
+            <div className="transition-all duration-300 lg:pl-64">
                 <div className="max-w-[1600px] mx-auto px-6 md:px-10 py-10">
                     <Header
                         userName={dashboardData?.user?.name || user?.name || "User"}
