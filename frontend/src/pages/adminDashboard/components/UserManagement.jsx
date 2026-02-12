@@ -3,18 +3,15 @@ import { Mail, Phone, ExternalLink, Settings, ShieldCheck } from 'lucide-react';
 
 const UserManagement = ({ users }) => {
     return (
-        <div className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-50 overflow-hidden col-span-1 lg:col-span-8">
-            <div className="p-6 border-b border-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h3 className="text-lg font-black text-slate-800">User List</h3>
+        <div className="bg-white rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 overflow-hidden col-span-1 lg:col-span-8">
+            <div className="p-10 border-b border-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <div>
+                    <h3 className="text-[24px] font-black text-slate-800 tracking-tight leading-none">User List</h3>
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-3">Registered Platform Citizens</p>
+                </div>
                 <div className="flex gap-2">
-                    <button className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-700 transition-all">
+                    <button className="px-6 py-3 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-900/10">
                         <ExternalLink className="w-3.5 h-3.5" /> View Complaint
-                    </button>
-                    <button className="px-4 py-2 bg-white border-2 border-emerald-100 text-emerald-600 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-emerald-50 transition-all">
-                        Change Status
-                    </button>
-                    <button className="px-4 py-2 bg-slate-50 text-slate-500 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-slate-100 transition-all">
-                        Assign Department
                     </button>
                 </div>
             </div>

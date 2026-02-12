@@ -15,7 +15,8 @@ const Sidebar = ({ activeTab, onTabChange, isOpen }) => {
     const menuItems = [
         { id: 'dashboard', name: 'Dashboard', icon: Home },
         { id: 'complaints', name: 'Complaints', icon: FileText },
-        { id: 'users', name: 'Users', icon: Users },
+        { id: 'users', name: 'Users', icon: UserIcon },
+        { id: 'officers', name: 'Officers', icon: Users },
     ];
 
     return (

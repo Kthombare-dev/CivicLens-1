@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import TopNavbar from './components/TopNavbar';
 import StatCardsGrid from './components/StatCards';
-import RecentComplaints from './components/RecentComplaints';
+import ComplaintManagement from './components/ComplaintManagement';
 import AnalyticsPanels from './components/AnalyticsPanels';
 import UserManagement from './components/UserManagement';
+import OfficerManagement from './components/OfficerManagement';
+import AssignOfficerPanel from './components/AssignOfficerPanel';
 import { adminService } from '../../services/adminService';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,6 +14,8 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [selectedComplaint, setSelectedComplaint] = useState(null);
+    const [officers, setOfficers] = useState([]);
     const [data, setData] = useState({
         stats: null,
         complaints: [],
@@ -23,14 +27,16 @@ const AdminDashboard = () => {
         const fetchAllData = async () => {
             try {
                 setLoading(true);
-                const [stats, complaints, analytics, users] = await Promise.all([
+                const [stats, complaints, analytics, users, officersList] = await Promise.all([
                     adminService.getStats(),
                     adminService.getRecentComplaints(),
                     adminService.getAnalytics(),
-                    adminService.getUsers()
+                    adminService.getUsers(),
+                    adminService.getOfficers()
                 ]);
 
                 setData({ stats, complaints, analytics, users });
+                setOfficers(officersList);
             } catch (error) {
                 console.error('Error fetching admin data:', error);
             } finally {
@@ -40,6 +46,33 @@ const AdminDashboard = () => {
 
         fetchAllData();
     }, []);
+
+    const handleAssignOfficer = (officerId) => {
+        // Logic to update complaint status and assigned officer
+        console.log(`Assigning officer ${officerId} to complaint ${selectedComplaint.id}`);
+
+        setData(prev => ({
+            ...prev,
+            complaints: prev.complaints.map(c =>
+                c.id === selectedComplaint.id
+                    ? { ...c, status: 'Assigned', assignedTo: officers.find(o => o.id === officerId).name }
+                    : c
+            )
+        }));
+
+        setSelectedComplaint(null);
+    };
+
+    const handleUpdateStatus = (complaintId, newStatus) => {
+        setData(prev => ({
+            ...prev,
+            complaints: prev.complaints.map(c =>
+                c.id === complaintId
+                    ? { ...c, status: newStatus }
+                    : c
+            )
+        }));
+    };
 
     const renderTabContent = () => {
         if (loading) {
@@ -67,9 +100,34 @@ const AdminDashboard = () => {
                     </motion.div>
                 );
             case 'complaints':
-                return <RecentComplaints complaints={data.complaints} />;
+                return (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                        <div className={`${selectedComplaint ? 'lg:col-span-8' : 'lg:col-span-12'} transition-all duration-500`}>
+                            <ComplaintManagement
+                                complaints={data.complaints}
+                                onAssignClick={(complaint) => setSelectedComplaint(complaint)}
+                                onUpdateStatus={handleUpdateStatus}
+                            />
+                        </div>
+                        <AnimatePresence>
+                            {selectedComplaint && (
+                                <div className="lg:col-span-4 h-full">
+                                    <AssignOfficerPanel
+                                        isOpen={!!selectedComplaint}
+                                        onClose={() => setSelectedComplaint(null)}
+                                        selectedComplaint={selectedComplaint}
+                                        officers={officers}
+                                        onAssign={handleAssignOfficer}
+                                    />
+                                </div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                );
             case 'users':
                 return <UserManagement users={data.users} />;
+            case 'officers':
+                return <OfficerManagement officers={officers} />;
             default:
                 return null;
         }
