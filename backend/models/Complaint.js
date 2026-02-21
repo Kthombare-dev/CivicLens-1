@@ -20,15 +20,25 @@ const ComplaintSchema = new mongoose.Schema({
     },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    location: { type: String }, // Lat/Lng string or object
+    location: { type: String }, // Lat/Lng string or object (legacy)
     address: { type: String, required: true }, // Human readable address
+    // GeoJSON for smart nearby filtering (optional; set only when lat,lng available - no defaults to avoid invalid Point)
+    coordinates: {
+        type: {
+            type: String,
+            enum: ['Point']
+        },
+        coordinates: [Number] // [longitude, latitude] - required when type is Point
+    },
+    // Normalized area name (e.g. first part of address) for fast area-based filtering
+    area: { type: String, trim: true, default: null },
 
     images: [{ type: String }], // Public paths to stored images. Index 0 = Before. Index 1 = After (if resolved)
 
     status: {
         type: String,
         enum: ['Submitted', 'Assigned', 'In Progress', 'Resolved', 'Rejected'],
-        default: 'Assigned',
+        default: 'Submitted',
     },
 
     // AI Fields
@@ -56,20 +66,20 @@ const ComplaintSchema = new mongoose.Schema({
     // Community Validation
     votes: { type: Number, default: 0 },
     votedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users who voted/liked
-    
+
     // Comments
     commentCount: { type: Number, default: 0 },
-    
+
     // Engagement & Trending
     engagementScore: { type: Number, default: 0 }, // Calculated: votes + (comments * 2) + (views * 0.1)
     trendScore: { type: Number, default: 0 }, // Time-weighted engagement score
     lastEngagementAt: { type: Date, default: Date.now }, // Last time someone interacted
     isTrending: { type: Boolean, default: false }, // Auto-set based on trendScore
     priorityBoost: { type: Number, default: 0 }, // Auto-escalation boost (0-2 levels)
-    
+
     expectedResolutionDate: { type: Date }, // Calculated based on AI estimate
     verifiedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users who verified the fix
-    
+
     // Verification System
     verificationSubmissions: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -89,5 +99,21 @@ const ComplaintSchema = new mongoose.Schema({
 
     createdAt: { type: Date, default: Date.now },
 });
+
+// Never persist incomplete GeoJSON Point (would break 2dsphere index)
+ComplaintSchema.pre('save', function () {
+    if (this.coordinates && this.coordinates.type === 'Point') {
+        const arr = this.coordinates.coordinates;
+        if (!Array.isArray(arr) || arr.length !== 2 || typeof arr[0] !== 'number' || typeof arr[1] !== 'number') {
+            this.coordinates = undefined;
+        }
+    }
+});
+
+// Indexes for smart public-feed filtering
+ComplaintSchema.index({ status: 1, trendScore: -1, engagementScore: -1, createdAt: -1 });
+ComplaintSchema.index({ status: 1, area: 1, createdAt: -1 });
+ComplaintSchema.index({ status: 1, citizen_id: 1, createdAt: -1 });
+ComplaintSchema.index({ coordinates: '2dsphere' }, { sparse: true }); // only when coordinates exist
 
 module.exports = mongoose.model('Complaint', ComplaintSchema);

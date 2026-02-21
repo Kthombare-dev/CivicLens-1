@@ -500,6 +500,69 @@ class GeminiService {
       metadata: {}
     };
   }
+  /**
+   * Verify if the resolution image is valid effectively
+   * @param {string} complaintImageBase64 - Original complaint image
+   * @param {string} verificationImageBase64 - New verification image
+   * @param {string} description - Complaint description
+   * @returns {Promise<Object>} Verification result
+   */
+  async verifyResolution(complaintImageBase64, verificationImageBase64, description) {
+    const startTime = Date.now();
+
+    try {
+      const prompt = `You are a strict municipal verification officer. Compare these two images:
+      Image 1: The original civic complaint (Issue).
+      Image 2: The proof of resolution (Fix).
+      Context: ${description}
+
+      Tasks:
+      1. EXACT DUPLICATE CHECK: Is Image 2 an exact duplicate or slightly cropped/filtered version of Image 1? (Yes/No)
+      2. LOCATION MATCH: Do both images appear to be taken at the same location? Look for background landmarks, buildings, road patterns. (Yes/No)
+      3. RESOLUTION VERIFICATION: Does Image 2 show that the specific issue in Image 1 has been fixed? (Yes/No/Unsure)
+
+      Respond in JSON format:
+      {
+        "isDuplicate": boolean,
+        "isSameLocation": boolean,
+        "isResolved": boolean,
+        "confidence": 0.0-1.0,
+        "reasoning": "Short explanation of your decision"
+      }`;
+
+      const imagePart1 = this.prepareImagePart(complaintImageBase64);
+      const imagePart2 = this.prepareImagePart(verificationImageBase64);
+
+      const result = await this.executeWithRetry(async () => {
+        return await this.model.generateContent([prompt, imagePart1, imagePart2]);
+      });
+
+      const response = await result.response;
+      const text = response.text();
+
+      // Parse JSON
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('No JSON found in response');
+      const parsed = JSON.parse(jsonMatch[0]);
+
+      return {
+        ...parsed,
+        processingTime: Date.now() - startTime
+      };
+
+    } catch (error) {
+      console.error('Verification analysis failed:', error);
+      // Fallback: Allow it but flag for manual review if AI fails
+      return {
+        isDuplicate: false,
+        isSameLocation: true,
+        isResolved: true,
+        confidence: 0.5,
+        reasoning: "AI Verification Failed: " + error.message,
+        error: true
+      };
+    }
+  }
 }
 
 module.exports = GeminiService;

@@ -25,6 +25,8 @@ const VerificationModal = ({ complaint, isOpen, onClose, onSuccess }) => {
         reader.readAsDataURL(file);
         setStep('location');
         setError(null);
+        // Auto-detect location after a short delay to allow render
+        setTimeout(() => handleAutoDetectLocation(), 500);
     };
 
     const handleAutoDetectLocation = () => {
@@ -53,7 +55,7 @@ const VerificationModal = ({ complaint, isOpen, onClose, onSuccess }) => {
                 }
 
                 const osmData = await osmResponse.json();
-                
+
                 if (osmData && osmData.display_name) {
                     setLocation(`${latitude},${longitude}`);
                     setAddress(osmData.display_name);
@@ -93,7 +95,7 @@ const VerificationModal = ({ complaint, isOpen, onClose, onSuccess }) => {
             if (address) formData.append('verificationAddress', address);
 
             const result = await complaintService.submitVerification(complaint._id, formData);
-            
+
             setStep('success');
             setTimeout(() => {
                 onSuccess(result);
@@ -190,29 +192,38 @@ const VerificationModal = ({ complaint, isOpen, onClose, onSuccess }) => {
                             {/* Location */}
                             <div>
                                 <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
-                                    Verification Location (Optional)
+                                    Verification Location (Required)
                                 </label>
                                 <div className="relative">
                                     <input
                                         ref={locationInputRef}
                                         type="text"
                                         value={address || location}
-                                        onChange={(e) => setAddress(e.target.value)}
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold text-slate-700 transition-all pl-11"
-                                        placeholder="Enter location or use auto-detect"
+                                        readOnly // Force auto-detect
+                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-bold text-slate-700 transition-all pl-11 cursor-not-allowed opacity-70"
+                                        placeholder="Click the pin to detect location"
                                     />
                                     <button
                                         type="button"
                                         onClick={handleAutoDetectLocation}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-500 transition-colors"
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 hover:text-emerald-700 transition-colors animate-pulse"
                                         title="Detect my current location"
                                     >
-                                        <MapPin className="w-4 h-4" />
+                                        <MapPin className="w-5 h-5" />
                                     </button>
                                 </div>
                                 <p className="text-xs text-slate-400 mt-2">
-                                    Help us verify you're at the complaint location
+                                    <span className="text-red-500">*</span> GPS location is required to verify your proximity.
                                 </p>
+                                {!location && (
+                                    <button
+                                        type="button"
+                                        onClick={handleAutoDetectLocation}
+                                        className="mt-3 text-xs font-bold text-emerald-600 hover:underline"
+                                    >
+                                        Click here to detect location
+                                    </button>
+                                )}
                             </div>
 
                             {error && (

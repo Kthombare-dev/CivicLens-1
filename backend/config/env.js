@@ -7,7 +7,10 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
  */
 const requiredEnvVars = [
     'JWT_SECRET',
-    'MONGODB_URI'
+    'JWT_SECRET',
+    'MONGODB_URI',
+    'ADMIN_EMAIL',
+    'ADMIN_PASSWORD'
 ];
 
 const optionalEnvVars = {
@@ -19,32 +22,33 @@ const optionalEnvVars = {
     'EMAIL_PORT': '587',
     'EMAIL_USER': '',
     'EMAIL_PASSWORD': '',
-    'EMAIL_FROM': 'CivicLens <noreply@civiclens.com>'
+    'EMAIL_FROM': 'CivicLens <noreply@civiclens.com>',
+    'ADMIN_PHONE': '9999999999'
 };
 
 function validateEnv() {
     const missing = [];
-    
+
     requiredEnvVars.forEach(varName => {
         if (!process.env[varName]) {
             missing.push(varName);
         }
     });
-    
+
     if (missing.length > 0) {
         throw new Error(
             `Missing required environment variables: ${missing.join(', ')}\n` +
             'Please create a .env file with these variables.'
         );
     }
-    
+
     // Set optional defaults
     Object.keys(optionalEnvVars).forEach(varName => {
         if (!process.env[varName]) {
             process.env[varName] = optionalEnvVars[varName];
         }
     });
-    
+
     // Validate JWT_SECRET strength in production
     if (process.env.NODE_ENV === 'production' && process.env.JWT_SECRET.length < 32) {
         throw new Error('JWT_SECRET must be at least 32 characters in production');
@@ -65,6 +69,9 @@ module.exports = {
     EMAIL_PORT: process.env.EMAIL_PORT,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
-    EMAIL_FROM: process.env.EMAIL_FROM
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
+    ADMIN_PHONE: process.env.ADMIN_PHONE
 };
 

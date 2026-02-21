@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Loader2, CheckCircle, MapPin, Star, Camera, AlertCircle, Clock, Heart, MessageCircle, TrendingUp } from 'lucide-react';
+import { ArrowRight, Loader2, CheckCircle, MapPin, Star, Camera, AlertCircle, Clock, Heart, MessageCircle, TrendingUp, User } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { complaintService } from '../../../services/complaintService';
 import VerificationModal from './VerificationModal';
@@ -51,15 +51,15 @@ const PublicFeed = () => {
         const fetchFeeds = async () => {
             try {
                 setLoading(true);
-                
+
                 // Fetch both open issues and verifiable issues in parallel
                 // Pass null if location not available - backend will handle it
                 const [openData, verifiableData] = await Promise.all([
                     complaintService.getNearbyComplaints(
                         userLocation?.latitude || null,
                         userLocation?.longitude || null,
-                        5, // 5km radius
-                        userLocation ? null : userArea // use area when no coords
+                        20, // 20km radius (City-wide)
+                        userArea // use area for fallback/hybrid search
                     ).catch(err => {
                         console.error('Failed to fetch open issues:', err);
                         return [];
@@ -68,13 +68,13 @@ const PublicFeed = () => {
                         userLocation?.latitude || null,
                         userLocation?.longitude || null,
                         5, // 5km radius
-                        userLocation ? null : userArea // use area when no coords
+                        userArea // use area for fallback/hybrid search
                     ).catch(err => {
                         console.error('Failed to fetch verifiable issues:', err);
                         return [];
                     })
                 ]);
-                
+
                 setOpenIssues(Array.isArray(openData) ? openData : []);
                 setVerifiableIssues(Array.isArray(verifiableData) ? verifiableData : []);
             } catch (error) {
@@ -102,11 +102,11 @@ const PublicFeed = () => {
         try {
             setLikingComplaints(prev => new Set(prev).add(complaint._id));
             const result = await complaintService.likeComplaint(complaint._id);
-            
+
             // Update the complaint in the list
             if (activeTab === 'open') {
-                setOpenIssues(openIssues.map(item => 
-                    item._id === complaint._id 
+                setOpenIssues(openIssues.map(item =>
+                    item._id === complaint._id
                         ? { ...item, votes: result.complaint.votes, hasVoted: result.hasVoted, votedBy: result.complaint.votedBy, engagementScore: result.complaint.engagementScore, isTrending: result.complaint.isTrending }
                         : item
                 ));
@@ -226,11 +226,10 @@ const PublicFeed = () => {
                 <div className="flex gap-2 mb-6 bg-slate-100 p-1 rounded-xl">
                     <button
                         onClick={() => setActiveTab('open')}
-                        className={`flex-1 px-4 py-2 rounded-lg font-black text-sm transition-all ${
-                            activeTab === 'open'
-                                ? 'bg-white text-slate-800 shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700'
-                        }`}
+                        className={`flex-1 px-4 py-2 rounded-lg font-black text-sm transition-all ${activeTab === 'open'
+                            ? 'bg-white text-slate-800 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700'
+                            }`}
                     >
                         <div className="flex items-center justify-center gap-2">
                             <AlertCircle className="w-4 h-4" />
@@ -239,11 +238,10 @@ const PublicFeed = () => {
                     </button>
                     <button
                         onClick={() => setActiveTab('verifiable')}
-                        className={`flex-1 px-4 py-2 rounded-lg font-black text-sm transition-all ${
-                            activeTab === 'verifiable'
-                                ? 'bg-white text-slate-800 shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700'
-                        }`}
+                        className={`flex-1 px-4 py-2 rounded-lg font-black text-sm transition-all ${activeTab === 'verifiable'
+                            ? 'bg-white text-slate-800 shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700'
+                            }`}
                     >
                         <div className="flex items-center justify-center gap-2">
                             <CheckCircle className="w-4 h-4" />
@@ -276,18 +274,16 @@ const PublicFeed = () => {
                             </div>
                         ) : (
                             currentItems.map((item) => (
-                                <div 
-                                    key={item._id} 
-                                    className={`p-5 rounded-[24px] border-2 group hover:shadow-lg transition-all ${
-                                        activeTab === 'open'
-                                            ? 'bg-gradient-to-br from-slate-50 to-white border-slate-200 hover:border-slate-300'
-                                            : 'bg-gradient-to-br from-slate-50 to-white border-emerald-100 hover:border-emerald-300'
-                                    }`}
+                                <div
+                                    key={item._id}
+                                    className={`p-5 rounded-[24px] border-2 group hover:shadow-lg transition-all ${activeTab === 'open'
+                                        ? 'bg-gradient-to-br from-slate-50 to-white border-slate-200 hover:border-slate-300'
+                                        : 'bg-gradient-to-br from-slate-50 to-white border-emerald-100 hover:border-emerald-300'
+                                        }`}
                                 >
                                     <div className="flex items-start gap-4">
-                                        <div className={`w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center overflow-hidden border-2 flex-shrink-0 ${
-                                            activeTab === 'open' ? 'border-slate-200' : 'border-emerald-100'
-                                        }`}>
+                                        <div className={`w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center overflow-hidden border-2 flex-shrink-0 ${activeTab === 'open' ? 'border-slate-200' : 'border-emerald-100'
+                                            }`}>
                                             <img
                                                 src={complaintService.getImageUrl(item.images?.[0])}
                                                 alt={item.title}
@@ -320,6 +316,12 @@ const PublicFeed = () => {
                                                                         Trusted
                                                                     </span>
                                                                 )}
+                                                                {(user?._id === item.citizen_id || user?.id === item.citizen_id) && (
+                                                                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-tighter bg-blue-50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                                                        <User className="w-3 h-3" />
+                                                                        Your Issue
+                                                                    </span>
+                                                                )}
                                                             </>
                                                         )}
                                                     </div>
@@ -346,11 +348,10 @@ const PublicFeed = () => {
                                                         <button
                                                             onClick={() => handleLikeClick(item)}
                                                             disabled={likingComplaints.has(item._id)}
-                                                            className={`flex-1 px-4 py-2.5 rounded-xl font-black text-sm transition-colors flex items-center justify-center gap-2 ${
-                                                                item.hasVoted
-                                                                    ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100'
-                                                                    : 'bg-slate-100 text-slate-700 border-2 border-slate-200 hover:bg-slate-200'
-                                                            } disabled:opacity-50`}
+                                                            className={`flex-1 px-4 py-2.5 rounded-xl font-black text-sm transition-colors flex items-center justify-center gap-2 ${item.hasVoted
+                                                                ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100'
+                                                                : 'bg-slate-100 text-slate-700 border-2 border-slate-200 hover:bg-slate-200'
+                                                                } disabled:opacity-50`}
                                                         >
                                                             <Heart className={`w-4 h-4 ${item.hasVoted ? 'fill-red-600' : ''}`} />
                                                             {item.votes || 0}

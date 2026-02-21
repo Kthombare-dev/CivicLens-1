@@ -134,6 +134,31 @@ export const complaintService = {
     },
 
     /**
+     * Update complaint status (official/admin only). E.g. mark as Resolved.
+     */
+    updateComplaintStatus: async (complaintId, status) => {
+        try {
+            const response = await fetch(`${API_URL}/complaints/${complaintId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders()
+                },
+                body: JSON.stringify({ status })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to update status');
+            }
+            return data;
+        } catch (error) {
+            console.error('Error in updateComplaintStatus:', error);
+            throw error;
+        }
+    },
+
+    /**
      * Upvote a complaint
      */
     voteComplaint: async (id) => {

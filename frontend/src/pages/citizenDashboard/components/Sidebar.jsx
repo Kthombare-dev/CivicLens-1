@@ -1,11 +1,12 @@
 import React from 'react';
-import { Home, Megaphone, FileText, Star, Users, Bell, User, LogOut } from 'lucide-react';
+import { Home, Megaphone, FileText, Star, Users, Bell, User, LogOut, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Sidebar = ({ activeTab = 'Home', onTabChange, isOpen }) => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const isOfficial = user?.role === 'official' || user?.role === 'admin';
 
   const handleLogout = () => {
     logout();
@@ -17,6 +18,7 @@ const Sidebar = ({ activeTab = 'Home', onTabChange, isOpen }) => {
     { name: 'Report Issue', icon: Megaphone, special: true },
     { name: 'My Issues', icon: FileText },
     { name: 'Public Feed', icon: Users },
+    ...(isOfficial ? [{ name: 'Manage Issues (Official)', icon: ShieldCheck }] : []),
   ];
 
   return (

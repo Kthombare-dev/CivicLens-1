@@ -49,6 +49,18 @@ const UserSchema = new mongoose.Schema({
         trim: true,
         default: null
     },
+    address: {
+        type: String,
+        trim: true,
+        default: null
+    },
+    coordinates: {
+        type: {
+            type: String,
+            enum: ['Point']
+        },
+        coordinates: [Number] // [longitude, latitude]
+    },
     isActive: {
         type: Boolean,
         default: true,
@@ -75,9 +87,10 @@ const UserSchema = new mongoose.Schema({
 // Indexes for performance
 // Note: email and phone already have indexes from unique: true, so we only add role index
 UserSchema.index({ role: 1 });
+UserSchema.index({ coordinates: '2dsphere' }); // For geospatial queries if needed
 
 // Remove password from JSON output
-UserSchema.methods.toJSON = function() {
+UserSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.password;
     return obj;

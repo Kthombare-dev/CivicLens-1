@@ -17,11 +17,13 @@ try {
 const config = require('./config/env');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const serviceFactory = require('./services/serviceFactory');
+const seedAdminUser = require('./seeds/adminSeeder');
 
 // Import routes
 const authRoutes = require('./routes/auth');
 const complaintRoutes = require('./routes/complaints');
 const dashboardRoutes = require('./routes/dashboard');
+const userRoutes = require('./routes/user');
 
 // Initialize Express app
 const app = express();
@@ -78,8 +80,9 @@ if (isAtlasConnection) {
     const maskedUri = cleanUri.replace(/:([^:@]+)@/, ':****@');
     console.log('Connection URI:', maskedUri);
     mongoose.connect(cleanUri, mongooseOptions)
-        .then(() => {
+        .then(async () => {
             console.log('✓ MongoDB Atlas connected successfully');
+            await seedAdminUser();
         })
         .catch((err) => {
             console.error('✗ MongoDB Atlas connection failed:');
@@ -98,8 +101,9 @@ if (isAtlasConnection) {
 } else {
     console.log('Connecting to local MongoDB...');
     mongoose.connect(config.MONGODB_URI, mongooseOptions)
-        .then(() => {
+        .then(async () => {
             console.log('✓ Local MongoDB connected successfully');
+            await seedAdminUser();
         })
         .catch((err) => {
             console.error('✗ Local MongoDB connection failed:');
@@ -115,6 +119,7 @@ if (isAtlasConnection) {
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/user', userRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

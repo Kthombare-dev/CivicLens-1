@@ -7,6 +7,7 @@ import IssuesTable from './components/IssuesTable';
 import CivicPointsCard from './components/CivicPointsCard';
 import PublicFeed from './components/PublicFeed';
 import ReportIssue from './components/ReportIssue';
+import ManageIssues from './components/ManageIssues';
 import { useAuth } from '../../context/AuthContext';
 import { complaintService } from '../../services/complaintService';
 import { Star, Box, CheckCircle } from 'lucide-react';
@@ -149,6 +150,17 @@ const Dashboard = () => {
                         className="pt-6"
                     >
                         <PublicFeed />
+                    </motion.div>
+                );
+            case 'Manage Issues (Official)':
+                return (
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="pt-6"
+                    >
+                        <ManageIssues />
                     </motion.div>
                 );
             default:

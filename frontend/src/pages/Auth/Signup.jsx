@@ -76,7 +76,7 @@ export default function Signup() {
             setServerError('');
 
             try {
-                const response = await fetch('https://civiclens-1.onrender.com/api/auth/register', {
+                const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

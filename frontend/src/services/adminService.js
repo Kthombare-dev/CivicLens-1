@@ -26,21 +26,21 @@ export const adminService = {
     getRecentComplaints: async (search = '') => {
         // Mock data matching the image
         return [
-            { id: 'CMP-0456', user: 'John Doe', category: 'Pothole', location: 'MG Road', status: 'Submitted', timestamp: 'Apr 24, 2024, 02:45 PM', assignedTo: null },
-            { id: 'CMP-0455', user: 'Sara Smith', category: 'Garbage', location: 'Station Area', status: 'In Progress', timestamp: 'Apr 23, 2024, 02:15 PM', assignedTo: 'Ravi Kumar' },
-            { id: 'CMP-0454', user: 'Alex Walker', category: 'Streetlight', location: 'Lakeview Ave', status: 'Resolved', timestamp: 'Apr 20, 2024, 08:30 PM', assignedTo: 'Riya Verma' },
-            { id: 'CMP-0453', user: 'Emily Johnson', category: 'Water / Sanitation', location: 'Market Square', status: 'Submitted', timestamp: 'Apr 19, 2024, 09:50 AM', assignedTo: null },
-            { id: 'CMP-0452', user: 'Michael Brown', category: 'Pothole', location: 'Aurobindo Ave', status: 'Resolved', timestamp: 'Apr 20, 2024, 09:30 AM', assignedTo: 'Amit Rao' },
-            { id: 'CMP-0451', user: 'David Wilson', category: 'Garbage', location: 'Green Park', status: 'Submitted', timestamp: 'Apr 18, 2024, 11:20 AM', assignedTo: null },
-            { id: 'CMP-0450', user: 'Lisa Ray', category: 'Streetlight', location: 'Church Road', status: 'Submitted', timestamp: 'Apr 17, 2024, 04:10 PM', assignedTo: null },
-            { id: 'CMP-0449', user: 'Chris Evans', category: 'Pothole', location: 'Central Mall', status: 'Submitted', timestamp: 'Apr 16, 2024, 01:55 PM', assignedTo: null },
-            { id: 'CMP-0448', user: 'Anna Scott', category: 'Water / Sanitation', location: 'Park Lane', status: 'Submitted', timestamp: 'Apr 15, 2024, 08:45 AM', assignedTo: null },
-            { id: 'CMP-0447', user: 'Mark Taylor', category: 'Garbage', location: 'City Center', status: 'Submitted', timestamp: 'Apr 14, 2024, 03:20 PM', assignedTo: null },
-            { id: 'CMP-0446', user: 'Sarah Connor', category: 'Pothole', location: 'Main Street', status: 'Assigned', timestamp: 'Apr 13, 2024, 10:15 AM', assignedTo: 'Riya Verma' },
-            { id: 'CMP-0445', user: 'Bruce Wayne', category: 'Streetlight', location: 'Gotham Hts', status: 'In Progress', timestamp: 'Apr 12, 2024, 11:30 PM', assignedTo: 'Amit Rao' },
-            { id: 'CMP-0444', user: 'Diana Prince', category: 'Water / Sanitation', location: 'Themyscira Rd', status: 'Submitted', timestamp: 'Apr 11, 2024, 09:00 AM', assignedTo: null },
-            { id: 'CMP-0443', user: 'Peter Parker', category: 'Garbage', location: 'Queens Blvd', status: 'Resolved', timestamp: 'Apr 10, 2024, 02:45 PM', assignedTo: 'Ravi Kumar' },
-            { id: 'CMP-0442', user: 'Tony Stark', category: 'Pothole', location: 'Malibu Point', status: 'Submitted', timestamp: 'Apr 09, 2024, 05:20 PM', assignedTo: null },
+            { id: 'CMP-0456', user: 'Arjun Sharma', category: 'Pothole', location: 'MG Road', status: 'Submitted', timestamp: 'Apr 24, 2024, 02:45 PM', assignedTo: null },
+            { id: 'CMP-0455', user: 'Priya Iyer', category: 'Garbage', location: 'Indira Nagar', status: 'In Progress', timestamp: 'Apr 23, 2024, 02:15 PM', assignedTo: 'Ravi Kumar' },
+            { id: 'CMP-0454', user: 'Vikram Singh', category: 'Streetlight', location: 'Sector 45', status: 'Resolved', timestamp: 'Apr 20, 2024, 08:30 PM', assignedTo: 'Riya Verma' },
+            { id: 'CMP-0453', user: 'Neha Gupta', category: 'Water / Sanitation', location: 'Koramangala', status: 'Submitted', timestamp: 'Apr 19, 2024, 09:50 AM', assignedTo: null },
+            { id: 'CMP-0452', user: 'Rohan Mehta', category: 'Pothole', location: 'Jayanagar', status: 'Resolved', timestamp: 'Apr 20, 2024, 09:30 AM', assignedTo: 'Amit Rao' },
+            { id: 'CMP-0451', user: 'Anjali Desai', category: 'Garbage', location: 'Whitefield', status: 'Submitted', timestamp: 'Apr 18, 2024, 11:20 AM', assignedTo: null },
+            { id: 'CMP-0450', user: 'Suresh Reddy', category: 'Streetlight', location: 'Church Street', status: 'Submitted', timestamp: 'Apr 17, 2024, 04:10 PM', assignedTo: null },
+            { id: 'CMP-0449', user: 'Kavita Joshi', category: 'Pothole', location: 'Brigade Road', status: 'Submitted', timestamp: 'Apr 16, 2024, 01:55 PM', assignedTo: null },
+            { id: 'CMP-0448', user: 'Manoj Kumar', category: 'Water / Sanitation', location: 'Malleshwaram', status: 'Submitted', timestamp: 'Apr 15, 2024, 08:45 AM', assignedTo: null },
+            { id: 'CMP-0447', user: 'Swati Patel', category: 'Garbage', location: 'City Market', status: 'Submitted', timestamp: 'Apr 14, 2024, 03:20 PM', assignedTo: null },
+            { id: 'CMP-0446', user: 'Aditya Verma', category: 'Pothole', location: 'Residency Road', status: 'Assigned', timestamp: 'Apr 13, 2024, 10:15 AM', assignedTo: 'Riya Verma' },
+            { id: 'CMP-0445', user: 'Meera Nair', category: 'Streetlight', location: 'HSR Layout', status: 'In Progress', timestamp: 'Apr 12, 2024, 11:30 PM', assignedTo: 'Amit Rao' },
+            { id: 'CMP-0444', user: 'Karthik S', category: 'Water / Sanitation', location: 'Electronic City', status: 'Submitted', timestamp: 'Apr 11, 2024, 09:00 AM', assignedTo: null },
+            { id: 'CMP-0443', user: 'Sneha Rao', category: 'Garbage', location: 'BTM Layout', status: 'Resolved', timestamp: 'Apr 10, 2024, 02:45 PM', assignedTo: 'Ravi Kumar' },
+            { id: 'CMP-0442', user: 'Rahul Khanna', category: 'Pothole', location: 'Richmond Town', status: 'Submitted', timestamp: 'Apr 09, 2024, 05:20 PM', assignedTo: null },
         ];
     },
 
@@ -59,19 +59,19 @@ export const adminService = {
             ],
             locations: [
                 { name: 'MG Road', count: 12 },
-                { name: 'Station Area', count: 9 },
-                { name: 'Market Area', count: 7 },
+                { name: 'Indira Nagar', count: 9 },
+                { name: 'Sector 45', count: 7 },
             ]
         };
     },
 
     getUsers: async () => {
         return [
-            { id: 'USR001', name: 'John Doe', contact: 'john@example.com', complaintsFiled: 3, lastActive: 'Apr 24, 2024, 02:45 PM' },
-            { id: 'USR002', name: 'Sara Smith', contact: 'sara@example.com', complaintsFiled: 12, lastActive: 'Apr 23, 2024, 02:15 PM' },
-            { id: 'USR003', name: 'Alex Walker', contact: '+1234567890', complaintsFiled: 4, lastActive: 'Apr 20, 2024, 09:00 AM' },
-            { id: 'USR004', name: 'Emily Johnson', contact: 'emily@example.com', complaintsFiled: 2, lastActive: 'Apr 19, 2024, 09:30 AM' },
-            { id: 'USR005', name: 'Michael Brown', contact: 'michaelb@example.com', complaintsFiled: 7, lastActive: 'Apr 20, 2024, 09:30 AM' },
+            { id: 'USR001', name: 'Arjun Sharma', contact: 'arjun.sharma@example.com', complaintsFiled: 3, lastActive: 'Apr 24, 2024, 02:45 PM' },
+            { id: 'USR002', name: 'Priya Iyer', contact: 'priya.iyer@example.com', complaintsFiled: 12, lastActive: 'Apr 23, 2024, 02:15 PM' },
+            { id: 'USR003', name: 'Vikram Singh', contact: '+91 98765 43210', complaintsFiled: 4, lastActive: 'Apr 20, 2024, 09:00 AM' },
+            { id: 'USR004', name: 'Neha Gupta', contact: 'neha.gupta@example.com', complaintsFiled: 2, lastActive: 'Apr 19, 2024, 09:30 AM' },
+            { id: 'USR005', name: 'Rohan Mehta', contact: 'rohan.mehta@example.com', complaintsFiled: 7, lastActive: 'Apr 20, 2024, 09:30 AM' },
         ];
     },
 
