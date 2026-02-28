@@ -22,7 +22,7 @@ function AppContent() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['citizen', 'official']}>
               <Dashboard />
             </ProtectedRoute>
           }
@@ -30,7 +30,7 @@ function AppContent() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['admin']}>
               <AdminDashboard />
             </ProtectedRoute>
           }

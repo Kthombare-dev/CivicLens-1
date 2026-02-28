@@ -1,92 +1,167 @@
-import React from 'react';
-import { X, User, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { adminService } from '../../../services/adminService';
 
-const AssignOfficerPanel = ({ isOpen, onClose, selectedComplaint, officers, onAssign }) => {
-    const [selectedOfficerId, setSelectedOfficerId] = React.useState(null);
+const AssignOfficerPanel = ({ isOpen, onClose, selectedComplaint, onAssign }) => {
+    const [officers, setOfficers]       = useState([]);
+    const [loadingOfficers, setLoadingOfficers] = useState(false);
+    const [selectedOfficerId, setSelectedOfficerId] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Fetch officers fresh every time the panel opens
+    useEffect(() => {
+        if (!isOpen) return;
+        setSelectedOfficerId(null);
+        setError(null);
+        const load = async () => {
+            setLoadingOfficers(true);
+            try {
+                const result = await adminService.getOfficers({ limit: 100 });
+                // Only show active officers, sorted by workload asc
+                setOfficers((result.officers || []).filter(o => o.isActive));
+            } catch {
+                setOfficers([]);
+            } finally {
+                setLoadingOfficers(false);
+            }
+        };
+        load();
+    }, [isOpen]);
 
     if (!isOpen || !selectedComplaint) return null;
 
+    const handleAssign = async () => {
+        if (!selectedOfficerId) return;
+        setLoading(true);
+        setError(null);
+        try {
+            await onAssign(selectedOfficerId);
+        } catch (err) {
+            setError(err.message || 'Failed to assign officer. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <motion.div
-            initial={{ x: 400, opacity: 0 }}
+            initial={{ x: 40, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 400, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 flex flex-col h-full sticky top-24"
+            exit={{ x: 40, opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="bg-white rounded-2xl shadow-xl border border-slate-100 flex flex-col sticky top-24 max-h-[calc(100vh-7rem)] overflow-hidden"
         >
-            <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-black text-slate-800">Assign Officer</h3>
+            {/* ── Fixed Header ───────────────────────────────────────── */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-50 flex-shrink-0">
+                <div>
+                    <h3 className="text-lg font-black text-slate-800 leading-none">Assign Officer</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                        Select an officer below
+                    </p>
+                </div>
                 <button
                     onClick={onClose}
-                    className="p-2 hover:bg-slate-50 rounded-xl text-slate-400 transition-all"
+                    className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 transition-all"
                 >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                 </button>
             </div>
 
-            <div className="space-y-6 mb-8">
-                <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Complaint</p>
-                    <div className="flex flex-col">
-                        <span className="text-[16px] font-black text-slate-800">{selectedComplaint.id}</span>
-                        <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm font-bold text-slate-600">{selectedComplaint.category}</span>
-                            <span className="w-1 h-1 rounded-full bg-slate-300" />
-                            <span className="text-sm font-black text-emerald-600 uppercase tracking-wider text-[10px]">High</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-3">Select Officer</p>
-                    <div className="relative">
-                        <select
-                            className="w-full pl-5 pr-10 py-3.5 bg-slate-50 border-none rounded-xl text-[15px] font-bold text-slate-600 appearance-none focus:ring-2 focus:ring-emerald-500/20"
-                            onChange={(e) => setSelectedOfficerId(e.target.value)}
-                            value={selectedOfficerId || ''}
-                        >
-                            <option value="">Select Officer</option>
-                            {officers.map(officer => (
-                                <option key={officer.id} value={officer.id}>{officer.name}</option>
-                            ))}
-                        </select>
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                    </div>
-                </div>
-
-                <div className="space-y-3">
-                    {officers.map((officer) => (
-                        <button
-                            key={officer.id}
-                            onClick={() => setSelectedOfficerId(officer.id)}
-                            className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all ${selectedOfficerId === officer.id
-                                    ? 'border-emerald-500 bg-emerald-50/30'
-                                    : 'border-slate-50 hover:border-slate-100 hover:bg-slate-50/50'
-                                }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
-                                    <img src={officer.avatar} alt={officer.name} className="w-full h-full object-cover" />
-                                </div>
-                                <span className={`text-[15px] font-bold ${selectedOfficerId === officer.id ? 'text-slate-800' : 'text-slate-600'}`}>
-                                    {officer.name}
-                                </span>
-                            </div>
-                            <span className={`text-base font-black ${selectedOfficerId === officer.id ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                {officer.workload}
-                            </span>
-                        </button>
-                    ))}
-                </div>
+            {/* ── Complaint Info ──────────────────────────────────────── */}
+            <div className="px-6 py-4 bg-slate-50/60 border-b border-slate-50 flex-shrink-0">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1.5">Complaint</p>
+                <p className="text-[13px] font-black text-slate-800 font-mono">{selectedComplaint.id}</p>
+                <p className="text-[12px] font-bold text-slate-500 mt-0.5">{selectedComplaint.category}</p>
+                {selectedComplaint.location && (
+                    <p className="text-[11px] text-slate-400 mt-0.5 truncate">{selectedComplaint.location}</p>
+                )}
             </div>
 
-            <button
-                disabled={!selectedOfficerId}
-                onClick={() => onAssign(selectedOfficerId)}
-                className="w-full mt-auto bg-[#10b981] hover:bg-[#059669] text-white py-4 rounded-xl font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50 disabled:shadow-none"
-            >
-                Assign Officer
-            </button>
+            {/* ── Scrollable Officer List ─────────────────────────────── */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
+                {loadingOfficers ? (
+                    <div className="flex items-center justify-center py-10">
+                        <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
+                    </div>
+                ) : officers.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-10 text-slate-300 gap-2">
+                        <AlertCircle className="w-6 h-6" />
+                        <p className="text-xs font-bold uppercase tracking-widest text-center">
+                            No active officers found.<br />Add officers first.
+                        </p>
+                    </div>
+                ) : (
+                    officers.map(officer => {
+                        const isSelected = String(selectedOfficerId) === String(officer.id);
+                        return (
+                            <button
+                                key={String(officer.id)}
+                                onClick={() => setSelectedOfficerId(String(officer.id))}
+                                className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all text-left ${
+                                    isSelected
+                                        ? 'border-emerald-500 bg-emerald-50/40'
+                                        : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/60'
+                                }`}
+                            >
+                                {/* Avatar */}
+                                <div className="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200 flex-shrink-0">
+                                    <img src={officer.avatar} alt={officer.name} className="w-full h-full object-cover" />
+                                </div>
+
+                                {/* Name + dept */}
+                                <div className="flex-1 min-w-0">
+                                    <p className={`text-[13px] font-bold truncate ${isSelected ? 'text-slate-900' : 'text-slate-600'}`}>
+                                        {officer.name}
+                                    </p>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider truncate">
+                                        {officer.department}
+                                    </p>
+                                </div>
+
+                                {/* Workload badge */}
+                                <div className="flex-shrink-0 flex flex-col items-end gap-0.5">
+                                    <span className={`text-sm font-black tabular-nums ${isSelected ? 'text-emerald-600' : 'text-slate-300'}`}>
+                                        {officer.workload}
+                                    </span>
+                                    <span className="text-[9px] text-slate-300 font-bold uppercase tracking-wider">active</span>
+                                </div>
+
+                                {/* Check icon */}
+                                {isSelected && (
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                                )}
+                            </button>
+                        );
+                    })
+                )}
+            </div>
+
+            {/* ── Fixed Footer ────────────────────────────────────────── */}
+            <div className="px-6 py-5 border-t border-slate-50 flex-shrink-0 space-y-3">
+                {error && (
+                    <div className="flex items-start gap-2 p-3 bg-red-50 rounded-xl text-red-600 text-xs font-bold">
+                        <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                        <span>{error}</span>
+                    </div>
+                )}
+
+                {!selectedOfficerId && officers.length > 0 && (
+                    <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest text-center">
+                        Select an officer to continue
+                    </p>
+                )}
+
+                <button
+                    disabled={!selectedOfficerId || loading || loadingOfficers || officers.length === 0}
+                    onClick={handleAssign}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {loading ? 'Assigning…' : 'Assign Officer'}
+                </button>
+            </div>
         </motion.div>
     );
 };

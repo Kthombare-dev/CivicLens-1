@@ -22,7 +22,7 @@ const TopNavbar = ({ title, onMenuClick }) => {
                     </span>
                 </button>
 
-                {/* Profile */}
+                {/* Profile
                 <div className="flex items-center gap-3 pl-6 border-l border-slate-100">
                     <div className="text-right hidden sm:block">
                         <p className="text-sm font-bold text-slate-800">Admin</p>
@@ -35,7 +35,7 @@ const TopNavbar = ({ title, onMenuClick }) => {
                             className="w-full h-full object-cover"
                         />
                     </div>
-                </div>
+                </div> */}
             </div>
         </header>
     );

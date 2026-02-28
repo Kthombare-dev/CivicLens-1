@@ -15,63 +15,43 @@ const AdminDashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [selectedComplaint, setSelectedComplaint] = useState(null);
-    const [officers, setOfficers] = useState([]);
-    const [data, setData] = useState({
-        stats: null,
-        complaints: [],
-        analytics: null,
-        users: []
-    });
+    const [complaintRefreshKey, setComplaintRefreshKey] = useState(0);
+    const [data, setData] = useState({ stats: null, analytics: null });
 
     useEffect(() => {
         const fetchAllData = async () => {
-            try {
-                setLoading(true);
-                const [stats, complaints, analytics, users, officersList] = await Promise.all([
-                    adminService.getStats(),
-                    adminService.getRecentComplaints(),
-                    adminService.getAnalytics(),
-                    adminService.getUsers(),
-                    adminService.getOfficers()
-                ]);
+            setLoading(true);
+            const [statsResult, analyticsResult] = await Promise.allSettled([
+                adminService.getStats(),
+                adminService.getAnalytics(),
+            ]);
 
-                setData({ stats, complaints, analytics, users });
-                setOfficers(officersList);
-            } catch (error) {
-                console.error('Error fetching admin data:', error);
-            } finally {
-                setLoading(false);
-            }
+            if (statsResult.status === 'rejected')
+                console.error('Error fetching stats:', statsResult.reason);
+            if (analyticsResult.status === 'rejected')
+                console.error('Error fetching analytics:', analyticsResult.reason);
+
+            setData({
+                stats:     statsResult.status     === 'fulfilled' ? statsResult.value     : null,
+                analytics: analyticsResult.status === 'fulfilled' ? analyticsResult.value : null,
+            });
+            setLoading(false);
         };
 
         fetchAllData();
     }, []);
 
-    const handleAssignOfficer = (officerId) => {
-        // Logic to update complaint status and assigned officer
-        console.log(`Assigning officer ${officerId} to complaint ${selectedComplaint.id}`);
-
-        setData(prev => ({
-            ...prev,
-            complaints: prev.complaints.map(c =>
-                c.id === selectedComplaint.id
-                    ? { ...c, status: 'Assigned', assignedTo: officers.find(o => o.id === officerId).name }
-                    : c
-            )
-        }));
-
-        setSelectedComplaint(null);
-    };
-
-    const handleUpdateStatus = (complaintId, newStatus) => {
-        setData(prev => ({
-            ...prev,
-            complaints: prev.complaints.map(c =>
-                c.id === complaintId
-                    ? { ...c, status: newStatus }
-                    : c
-            )
-        }));
+    const handleAssignOfficer = async (officerId) => {
+        if (!selectedComplaint) return;
+        try {
+            await adminService.assignOfficer(selectedComplaint._id, officerId);
+            setSelectedComplaint(null);
+            // Increment key so ComplaintManagement re-fetches its current page
+            setComplaintRefreshKey(k => k + 1);
+        } catch (error) {
+            // Re-throw so AssignOfficerPanel can show the error
+            throw error;
+        }
     };
 
     const renderTabContent = () => {
@@ -104,9 +84,8 @@ const AdminDashboard = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                         <div className={`${selectedComplaint ? 'lg:col-span-8' : 'lg:col-span-12'} transition-all duration-500`}>
                             <ComplaintManagement
-                                complaints={data.complaints}
-                                onAssignClick={(complaint) => setSelectedComplaint(complaint)}
-                                onUpdateStatus={handleUpdateStatus}
+                                onAssignClick={complaint => setSelectedComplaint(complaint)}
+                                refreshKey={complaintRefreshKey}
                             />
                         </div>
                         <AnimatePresence>
@@ -116,7 +95,6 @@ const AdminDashboard = () => {
                                         isOpen={!!selectedComplaint}
                                         onClose={() => setSelectedComplaint(null)}
                                         selectedComplaint={selectedComplaint}
-                                        officers={officers}
                                         onAssign={handleAssignOfficer}
                                     />
                                 </div>
@@ -125,9 +103,9 @@ const AdminDashboard = () => {
                     </div>
                 );
             case 'users':
-                return <UserManagement users={data.users} />;
+                return <UserManagement />;
             case 'officers':
-                return <OfficerManagement officers={officers} />;
+                return <OfficerManagement />;
             default:
                 return null;
         }

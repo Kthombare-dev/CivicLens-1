@@ -28,7 +28,7 @@ const ComplaintSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['Submitted', 'Assigned', 'In Progress', 'Resolved', 'Rejected'],
-        default: 'Assigned',
+        default: 'Submitted',
     },
 
     // AI Fields
@@ -78,6 +78,10 @@ const ComplaintSchema = new mongoose.Schema({
     verificationCount: { type: Number, default: 0 }, // Number of approved verifications
     trustScore: { type: Number, default: 0, min: 0, max: 100 }, // Overall trust score based on verifications
     isVerified: { type: Boolean, default: false }, // True if has minimum required verifications
+
+    // Officer assignment (set by admin)
+    assignedTo: { type: String, default: null }, // Officer name (display)
+    assignedOfficerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 
     // Lifecycle
     timeline: [{

@@ -8,7 +8,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "seed:admin": "node scripts/seedAdmin.js",
+    "seed:officers": "node scripts/seedOfficers.js"
   },
   "keywords": [],
   "author": "",
@@ -28,9 +30,10 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^7.0.11",
     "nodemon": "^3.1.11",
-    "multer": "^1.4.5-lts.1"
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "fast-check": "^4.5.2",

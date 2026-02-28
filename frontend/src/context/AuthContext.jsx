@@ -7,12 +7,23 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check local storage for token/user
-        const savedUser = localStorage.getItem('user');
-        if (savedUser) {
-            setUser(JSON.parse(savedUser));
+        try {
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                const parsed = JSON.parse(savedUser);
+                // Reject obviously invalid entries (no token = stale/corrupted)
+                if (parsed && parsed.token) {
+                    setUser(parsed);
+                } else {
+                    localStorage.removeItem('user');
+                }
+            }
+        } catch {
+            // Corrupted localStorage — clear it so the user can log in fresh
+            localStorage.removeItem('user');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }, []);
 
     const login = (userData) => {

@@ -33,49 +33,79 @@ const AnalyticsCard = ({ title, icon: Icon, children, onViewAll }) => (
     </div>
 );
 
+const EmptyAnalytics = () => (
+    <div className="flex flex-col items-center justify-center py-12 text-slate-300">
+        <Activity className="w-8 h-8 mb-3" />
+        <p className="text-xs font-bold uppercase tracking-widest">No analytics data</p>
+    </div>
+);
+
 const AnalyticsPanels = ({ analytics }) => {
+    if (!analytics) {
+        return (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <AnalyticsCard title="Complaint Category" icon={Tag}><EmptyAnalytics /></AnalyticsCard>
+                    <AnalyticsCard title="Status Overview" icon={Activity}><EmptyAnalytics /></AnalyticsCard>
+                </div>
+                <div className="lg:col-span-4">
+                    <AnalyticsCard title="Top Locations" icon={MapPin}><EmptyAnalytics /></AnalyticsCard>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Left side: Category and Status Overview */}
             <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-10">
                 {/* Complaint Category Count */}
                 <AnalyticsCard title="Complaint Category" icon={Tag}>
-                    {analytics.categories.map((cat, i) => (
-                        <AnalyticsItem
-                            key={i}
-                            icon={BarChart}
-                            title={cat.name}
-                            count={cat.count}
-                            colorClass={i % 2 === 0 ? 'bg-amber-50 text-amber-500' : 'bg-emerald-50 text-emerald-500'}
-                        />
-                    ))}
+                    {(analytics.categories || []).length === 0
+                        ? <EmptyAnalytics />
+                        : analytics.categories.map((cat, i) => (
+                            <AnalyticsItem
+                                key={i}
+                                icon={BarChart}
+                                title={cat.name}
+                                count={cat.count}
+                                colorClass={i % 2 === 0 ? 'bg-amber-50 text-amber-500' : 'bg-emerald-50 text-emerald-500'}
+                            />
+                        ))
+                    }
                 </AnalyticsCard>
 
                 {/* Complaint Status Overview */}
                 <AnalyticsCard title="Status Overview" icon={Activity}>
-                    {analytics.statusOverview.map((status, i) => (
-                        <AnalyticsItem
-                            key={i}
-                            icon={PieChart}
-                            title={status.name}
-                            count={status.count}
-                            colorClass={status.name === 'Resolved' ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}
-                        />
-                    ))}
+                    {(analytics.statusOverview || []).length === 0
+                        ? <EmptyAnalytics />
+                        : analytics.statusOverview.map((status, i) => (
+                            <AnalyticsItem
+                                key={i}
+                                icon={PieChart}
+                                title={status.name}
+                                count={status.count}
+                                colorClass={status.name === 'Resolved' ? 'bg-emerald-50 text-emerald-500' : 'bg-blue-50 text-blue-500'}
+                            />
+                        ))
+                    }
                 </AnalyticsCard>
             </div>
 
             {/* Right side: Top Locations */}
             <div className="lg:col-span-4">
                 <AnalyticsCard title="Top Locations" icon={MapPin}>
-                    {analytics.locations.map((loc, i) => (
-                        <AnalyticsItem
-                            key={i}
-                            icon={MapPin}
-                            title={loc.name}
-                            count={loc.count}
-                        />
-                    ))}
+                    {(analytics.locations || []).length === 0
+                        ? <EmptyAnalytics />
+                        : analytics.locations.map((loc, i) => (
+                            <AnalyticsItem
+                                key={i}
+                                icon={MapPin}
+                                title={loc.name}
+                                count={loc.count}
+                            />
+                        ))
+                    }
                 </AnalyticsCard>
             </div>
         </div>

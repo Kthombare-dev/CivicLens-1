@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http');
+const { Server: SocketIOServer } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
@@ -22,9 +24,34 @@ const serviceFactory = require('./services/serviceFactory');
 const authRoutes = require('./routes/auth');
 const complaintRoutes = require('./routes/complaints');
 const dashboardRoutes = require('./routes/dashboard');
+const adminRoutes = require('./routes/admin');
 
-// Initialize Express app
+// Initialize Express app and HTTP server
 const app = express();
+const httpServer = http.createServer(app);
+
+// Parse CORS_ORIGIN — supports '*', single URL, or comma-separated list
+const parseCorsOrigin = (raw = '*') => {
+    if (!raw || raw === '*') return '*';
+    const origins = raw.split(',').map(o => o.trim()).filter(Boolean);
+    return origins.length === 1 ? origins[0] : origins;
+};
+const corsOrigin = parseCorsOrigin(config.CORS_ORIGIN);
+
+// Socket.io setup — attached to the HTTP server
+const io = new SocketIOServer(httpServer, {
+    cors: { origin: corsOrigin, methods: ['GET', 'POST'] }
+});
+
+// Make io accessible in route handlers via app locals
+app.set('io', io);
+
+io.on('connection', (socket) => {
+    console.log(`Socket connected: ${socket.id}`);
+    socket.on('disconnect', () => {
+        console.log(`Socket disconnected: ${socket.id}`);
+    });
+});
 
 // Security middleware
 app.use(helmet({
@@ -32,10 +59,12 @@ app.use(helmet({
 })); // Set security headers with cross-origin access for images
 app.use(mongoSanitize()); // Prevent NoSQL injection
 
-// CORS configuration
+// CORS configuration — origin controlled via CORS_ORIGIN env var
 app.use(cors({
-    origin: '*',
-    credentials: false
+    origin: corsOrigin,
+    credentials: corsOrigin !== '*',  // credentials only when a specific origin is set
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
 }));
 
 // Body parser middleware
@@ -115,6 +144,7 @@ if (isAtlasConnection) {
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -173,7 +203,7 @@ async function startServer() {
             console.warn(`  Error: ${initResult.error}`);
         }
 
-        app.listen(PORT, () => {
+        httpServer.listen(PORT, () => {
             console.log(`Server running on port ${PORT} in ${config.NODE_ENV} mode`);
         });
     } catch (error) {

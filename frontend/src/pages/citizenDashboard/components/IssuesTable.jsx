@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import { complaintService } from '../../../services/complaintService';
 import { useAuth } from '../../../context/AuthContext';
+import { useSocket } from '../../../context/SocketContext';
 
 const getStatusColor = (status) => {
     switch (status) {
@@ -49,6 +50,7 @@ const formatTimeAgo = (dateString) => {
 
 const IssuesTable = () => {
     const { user } = useAuth();
+    const { socket } = useSocket();
     const [issues, setIssues] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -69,6 +71,28 @@ const IssuesTable = () => {
 
         fetchIssues();
     }, [user]);
+
+    // Listen for real-time status updates from admin
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleStatusUpdate = ({ complaintId, citizenId, newStatus }) => {
+            const myId = user?.id || user?._id;
+            // Only update if this complaint belongs to the logged-in citizen
+            if (String(citizenId) !== String(myId)) return;
+
+            setIssues(prev =>
+                prev.map(issue =>
+                    String(issue._id) === String(complaintId)
+                        ? { ...issue, status: newStatus }
+                        : issue
+                )
+            );
+        };
+
+        socket.on('complaint:statusUpdated', handleStatusUpdate);
+        return () => socket.off('complaint:statusUpdated', handleStatusUpdate);
+    }, [socket, user]);
 
     if (loading) {
         return (

@@ -78,7 +78,7 @@ export default function LoginPage() {
                 };
 
                 login(authData);
-                navigate('/dashboard');
+                navigate(authData.role === 'admin' ? '/admin' : '/dashboard');
             } catch (err) {
                 console.error('Login error:', err);
                 setServerError(err.message || 'Something went wrong. Please try again.');
