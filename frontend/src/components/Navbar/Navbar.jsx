@@ -10,7 +10,7 @@ const Navbar = () => {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const { isAuthenticated, logout } = useAuth();
+    const { isAuthenticated, logout, user } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -48,10 +48,6 @@ const Navbar = () => {
                 if (element) element.scrollIntoView({ behavior: 'smooth' });
             }, 100);
         } else {
-            // Already on home
-            // Update URL manually if desired, or skip
-            // window.history.pushState({}, '', link.path); // Optional: keep URL clean or match path
-
             const element = document.getElementById(link.targetId);
             if (element) {
                 element.scrollIntoView({ behavior: 'smooth' });
@@ -64,8 +60,15 @@ const Navbar = () => {
         navigate('/');
     };
 
+    const handleDashboardClick = () => {
+        if (!user) return;
+        if (user.role === 'admin') navigate('/admin');
+        else if (user.role === 'official') navigate('/officer');
+        else navigate('/dashboard');
+    };
+
     // Hide Navbar on Login and Signup pages
-    if (location.pathname === '/login' || location.pathname === '/signup') {
+    if (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/admin-login') {
         return null;
     }
 
@@ -112,7 +115,7 @@ const Navbar = () => {
                     <div className="navbar-actions">
                         {isAuthenticated ? (
                             <>
-                                <button className="btn-secondary" onClick={() => navigate('/dashboard')}>Dashboard</button>
+                                <button className="btn-secondary" onClick={handleDashboardClick}>Dashboard</button>
                                 <button className="btn-primary" onClick={handleLogout}>Logout</button>
                             </>
                         ) : (

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { adminService } from '../../../services/adminService';
 
 const AssignOfficerPanel = ({ isOpen, onClose, selectedComplaint, onAssign }) => {
-    const [officers, setOfficers]       = useState([]);
+    const [officers, setOfficers] = useState([]);
     const [loadingOfficers, setLoadingOfficers] = useState(false);
     const [selectedOfficerId, setSelectedOfficerId] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -94,16 +94,15 @@ const AssignOfficerPanel = ({ isOpen, onClose, selectedComplaint, onAssign }) =>
                     </div>
                 ) : (
                     officers.map(officer => {
-                        const isSelected = String(selectedOfficerId) === String(officer.id);
+                        const isSelected = String(selectedOfficerId) === String(officer._id);
                         return (
                             <button
-                                key={String(officer.id)}
-                                onClick={() => setSelectedOfficerId(String(officer.id))}
-                                className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all text-left ${
-                                    isSelected
+                                key={String(officer._id)}
+                                onClick={() => setSelectedOfficerId(String(officer._id))}
+                                className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all text-left ${isSelected
                                         ? 'border-emerald-500 bg-emerald-50/40'
                                         : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/60'
-                                }`}
+                                    }`}
                             >
                                 {/* Avatar */}
                                 <div className="w-9 h-9 rounded-full bg-slate-100 overflow-hidden border border-slate-200 flex-shrink-0">

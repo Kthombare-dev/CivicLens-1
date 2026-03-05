@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -18,6 +18,16 @@ export default function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [serverError, setServerError] = useState('');
     const navigate = useNavigate();
+    const { isAuthenticated, user: currentUser } = useAuth();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (isAuthenticated && currentUser) {
+            if (currentUser.role === 'admin') navigate('/admin');
+            else if (currentUser.role === 'official') navigate('/officer');
+            else navigate('/dashboard');
+        }
+    }, [isAuthenticated, currentUser, navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -77,8 +87,17 @@ export default function LoginPage() {
                     ...data.data.user
                 };
 
+                // Prevent admin from logging in via the citizen portal
+                if (authData.role === 'admin') {
+                    throw new Error('Admins must use the dedicated Admin Login page.');
+                }
+
                 login(authData);
-                navigate(authData.role === 'admin' ? '/admin' : '/dashboard');
+                if (authData.role === 'official') {
+                    navigate('/officer');
+                } else {
+                    navigate('/dashboard');
+                }
             } catch (err) {
                 console.error('Login error:', err);
                 setServerError(err.message || 'Something went wrong. Please try again.');

@@ -110,3 +110,9 @@ button {
   background-color: #e2e8f0;
   border-radius: 20px;
 }
+
+/* Hide Edge/IE default password reveal and clear icons */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
