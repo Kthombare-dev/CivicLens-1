@@ -140,11 +140,14 @@ if (isAtlasConnection) {
         });
 }
 
+const officerRoutes = require('./routes/officer');
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/officer', officerRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
