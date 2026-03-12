@@ -504,14 +504,26 @@ router.put(
       // We look for 'estimatedResolutionTime' (e.g. "3 days") or default to 3 days.
       let estimatedDays = 3;
       if (complaint.ai && complaint.ai.estimatedResolutionTime) {
-        const timeStr = String(
-          complaint.ai.estimatedResolutionTime,
-        ).toLowerCase();
-        const match = timeStr.match(/(\d+)\s+day/);
+        const timeStr = String(complaint.ai.estimatedResolutionTime).toLowerCase();
+        const match = timeStr.match(/(\d+)/);
+        
         if (match && match[1]) {
-          estimatedDays = parseInt(match[1], 10);
+          const val = parseInt(match[1], 10);
+          if (timeStr.includes("week")) {
+            estimatedDays = val * 7;
+          } else if (timeStr.includes("month")) {
+            estimatedDays = val * 30;
+          } else if (timeStr.includes("hour")) {
+            estimatedDays = Math.ceil(val / 24) || 1;
+          } else {
+            estimatedDays = val;
+          }
         } else if (timeStr.includes("week")) {
           estimatedDays = 7;
+        } else if (timeStr.includes("month")) {
+          estimatedDays = 30;
+        } else if (timeStr.includes("hour")) {
+          estimatedDays = 1;
         }
       }
 

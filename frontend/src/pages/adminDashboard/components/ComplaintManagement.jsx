@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, ChevronDown, ChevronLeft, ChevronRight, X, Loader2 } from 'lucide-react';
+import { Search, ChevronDown, ChevronLeft, ChevronRight, X, Loader2, User } from 'lucide-react';
 import { adminService } from '../../../services/adminService';
 
 const LIMIT = 8;
@@ -21,7 +21,7 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-const ComplaintManagement = ({ onAssignClick, refreshKey = 0 }) => {
+const ComplaintManagement = ({ onAssignClick, onViewDetails, refreshKey = 0 }) => {
     const [complaints, setComplaints]   = useState([]);
     const [pagination, setPagination]   = useState({ total: 0, page: 1, limit: LIMIT, totalPages: 0 });
     const [loading, setLoading]         = useState(true);
@@ -35,7 +35,6 @@ const ComplaintManagement = ({ onAssignClick, refreshKey = 0 }) => {
 
     const categories      = ['All', 'Pothole', 'Garbage', 'Streetlight', 'Water / Sanitation'];
     const statusOptions   = ['All', 'Submitted', 'In Progress', 'Assigned', 'Resolved', 'Rejected'];
-    const changeStatuses  = ['In Progress', 'Resolved', 'Rejected'];
 
     // Debounce search by 500 ms
     useEffect(() => {
@@ -77,22 +76,7 @@ const ComplaintManagement = ({ onAssignClick, refreshKey = 0 }) => {
         return () => { cancelled = true; };
     }, [page, selectedStatus, selectedCategory, debouncedSearch, refreshKey]);
 
-    const handleStatusUpdate = async (complaint, newStatus) => {
-        setActiveActionId(null);
-        try {
-            await adminService.updateComplaintStatus(complaint._id, newStatus);
-            // Optimistic local update; socket event will also update citizen's UI
-            setComplaints(prev =>
-                prev.map(c =>
-                    c._id.toString() === complaint._id.toString()
-                        ? { ...c, status: newStatus }
-                        : c
-                )
-            );
-        } catch (err) {
-            console.error('Failed to update status:', err);
-        }
-    };
+
 
     const getPageNumbers = () => {
         const { totalPages } = pagination;
@@ -235,34 +219,40 @@ const ComplaintManagement = ({ onAssignClick, refreshKey = 0 }) => {
                                                 Assign
                                             </button>
                                         ) : (
-                                            <div className="relative">
-                                                <button
-                                                    onClick={() => setActiveActionId(activeActionId === item._id ? null : item._id)}
-                                                    className="px-5 py-2.5 bg-slate-100/50 border border-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-3 min-w-[130px]"
+                                            <div className="flex items-center gap-2">
+                                                <button 
+                                                    onClick={() => onViewDetails(item)}
+                                                    className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all border border-slate-200"
                                                 >
-                                                    Change Status
-                                                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${activeActionId === item._id ? 'rotate-180' : ''}`} />
+                                                    View Detail
                                                 </button>
+                                                
+                                                <div className="relative">
+                                                    <button
+                                                        onClick={() => setActiveActionId(activeActionId === item._id ? null : item._id)}
+                                                        className="p-2 bg-white border border-slate-200 text-slate-400 rounded-lg hover:text-slate-600 hover:bg-slate-50 transition-all focus:ring-2 focus:ring-emerald-500/20"
+                                                    >
+                                                        <ChevronDown className={`w-4 h-4 transition-transform ${activeActionId === item._id ? 'rotate-180' : ''}`} />
+                                                    </button>
 
-                                                {activeActionId === item._id && (
-                                                    <>
-                                                        <div className="fixed inset-0 z-10" onClick={() => setActiveActionId(null)} />
-                                                        <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-20">
-                                                            {changeStatuses
-                                                                .filter(s => s !== item.status)
-                                                                .map(s => (
-                                                                    <button
-                                                                        key={s}
-                                                                        onClick={() => handleStatusUpdate(item, s)}
-                                                                        className="w-full text-left px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50"
-                                                                    >
-                                                                        {s}
-                                                                    </button>
-                                                                ))
-                                                            }
-                                                        </div>
-                                                    </>
-                                                )}
+                                                    {activeActionId === item._id && (
+                                                        <>
+                                                            <div className="fixed inset-0 z-[1] " onClick={() => setActiveActionId(null)} />
+                                                            <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 z-[20]">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        onAssignClick(item);
+                                                                        setActiveActionId(null);
+                                                                    }}
+                                                                    className="w-full text-left px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 flex items-center gap-2 group"
+                                                                >
+                                                                    <User className="w-3.5 h-3.5 text-indigo-500 group-hover:scale-110 transition-transform" />
+                                                                    Re-assign Officer
+                                                                </button>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
                                             </div>
                                         )}
                                     </td>

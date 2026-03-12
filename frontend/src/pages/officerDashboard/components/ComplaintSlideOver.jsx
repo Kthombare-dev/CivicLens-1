@@ -10,6 +10,8 @@ import {
   Clock,
   CheckCircle,
 } from "lucide-react";
+import { format, differenceInHours } from "date-fns";
+import { complaintService } from "../../../services/complaintService";
 
 export default function ComplaintSlideOver({
   complaint,
@@ -36,6 +38,31 @@ export default function ComplaintSlideOver({
   }, [complaint]);
 
   if (!complaint) return null;
+
+  // Calculate SLA metrics dynamically upon opening
+  let daysLeft = null;
+  let slaStatusColor = "bg-slate-100 text-slate-700 ring-slate-600/20";
+  let slaTextColor = "text-slate-500";
+  let slaDateFormatted = "Pending AI Analysis";
+
+  if (complaint.expectedResolutionDate) {
+    const deadline = new Date(complaint.expectedResolutionDate);
+    const today = new Date();
+    const hoursLeft = differenceInHours(deadline, today);
+    daysLeft = Math.ceil(hoursLeft / 24);
+    slaDateFormatted = format(deadline, "MMM dd, yyyy, hh:mm a");
+
+    if (daysLeft < 0) {
+      slaStatusColor = "bg-red-100 text-red-700 ring-red-600/20";
+      slaTextColor = "text-red-700";
+    } else if (daysLeft <= 2) {
+      slaStatusColor = "bg-amber-100 text-amber-700 ring-amber-600/20";
+      slaTextColor = "text-amber-700";
+    } else {
+      slaStatusColor = "bg-emerald-50 text-emerald-700 ring-emerald-600/20";
+      slaTextColor = "text-emerald-700";
+    }
+  }
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -130,11 +157,7 @@ export default function ComplaintSlideOver({
                     </div>
                     <div className="relative aspect-[16/9] w-full bg-slate-100 rounded-2xl overflow-hidden shadow-[inset_0_2px_10px_rgb(0,0,0,0.03)] border border-slate-200/60 group">
                       <img
-                        src={complaint.image ? 
-                          (complaint.image.startsWith('http') || complaint.image.startsWith('data:') 
-                            ? complaint.image 
-                            : `${import.meta.env.VITE_API_URL}${complaint.image}`) 
-                          : '/placeholder-image.jpg'}
+                        src={complaintService.getImageUrl(complaint.images?.[0])}
                         alt={`Incident ${complaint.id}`}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                       />
@@ -177,6 +200,26 @@ export default function ComplaintSlideOver({
                       </div>
                     </div>
 
+                    {/* Expected Resolution */}
+                    <div className="px-4 py-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-2 col-span-1 sm:col-span-2">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] font-bold text-slate-400 tracking-[0.15em] uppercase">
+                          Expected Resolution
+                        </span>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className={`font-semibold text-[15px] flex items-center gap-1.5 leading-snug ${slaTextColor}`}>
+                            <Clock className="w-4 h-4 flex-shrink-0" />
+                            {slaDateFormatted}
+                          </span>
+                          {daysLeft !== null && (
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest ring-1 ring-inset ${slaStatusColor}`}>
+                              {daysLeft < 0 ? `${Math.abs(daysLeft)} DAYS OVERDUE` : `${daysLeft} DAYS LEFT`}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Category */}
                     <div className="px-4 py-3 bg-slate-50/80 rounded-xl border border-slate-100 space-y-2">
                       <div className="flex flex-col gap-0.5">
@@ -199,9 +242,6 @@ export default function ComplaintSlideOver({
                         <span className="text-slate-800 font-semibold text-[15px] flex items-center gap-1.5 leading-snug">
                           <User className="w-4 h-4 text-amber-500" />
                           {complaint.reporter}
-                        </span>
-                        <span className="text-xs text-slate-500 ml-5.5">
-                          {complaint.phone || "No phone provided"}
                         </span>
                       </div>
                     </div>

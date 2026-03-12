@@ -9,6 +9,7 @@ const User = require('../models/User');
 const { authenticate } = require('../middleware/auth');
 const { upload, verificationUpload } = require('../middleware/upload');
 const { analyzeComplaintImage, normalizeDepartment } = require('../services/complaintAI');
+const supabase = require('../services/supabaseClient');
 
 const fs = require('fs');
 
@@ -21,22 +22,10 @@ router.post('/analyze', authenticate, upload.single('image'), async (req, res) =
 
         // Run AI analysis
         const aiResult = await analyzeComplaintImage({
-            filePath: req.file.path,
+            fileBuffer: req.file.buffer,
             mimeType: req.file.mimetype,
             userDescription: "Analyze this civic issue image" // Generic prompt for analysis
         });
-
-        // Clean up the temp file since we'll re-upload or use a different flow for final submission
-        // For this "Step 1" analysis, we don't want to keep the file forever if they abandon
-        // Wait... if we delete it, we can't use it for the final submission if we wanted to pass the filename.
-        // But the user plan is "upload image first then... populate fields". 
-        // We will assume the frontend sends the file AGAIN on final submit.
-        // So safe to delete this temporary analysis file to save space.
-        try {
-            fs.unlinkSync(req.file.path);
-        } catch (cleanupErr) {
-            console.error('Failed to cleanup temp analysis file:', cleanupErr);
-        }
 
         res.json({
             title: aiResult.metadata?.suggestedTitle || aiResult.category + " Issue",
@@ -70,12 +59,31 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
         //     return res.status(400).json({ message: 'Location is required' });
         // }
 
-        // Build public path for the stored image
-        const imagePath = `/uploads/complaints/${req.file.filename}`;
+        // Upload image buffer to Supabase Storage
+        const timestamp = Date.now();
+        const safeName = req.file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
+        const filename = `${timestamp}-${safeName}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('Complaint Images')
+            .upload(filename, req.file.buffer, {
+                contentType: req.file.mimetype
+            });
+        
+        if (uploadError) {
+            console.error("Supabase Upload Error:", uploadError);
+            throw new Error("Failed to upload image to remote storage.");
+        }
+
+        const { data: publicUrlData } = supabase.storage
+            .from('Complaint Images')
+            .getPublicUrl(filename);
+            
+        const imagePath = publicUrlData.publicUrl;
 
         // Run AI analysis (fallbacks handled internally)
         const aiResult = await analyzeComplaintImage({
-            filePath: req.file.path,
+            fileBuffer: req.file.buffer,
             mimeType: req.file.mimetype,
             userDescription: userDescription || title
         });
@@ -84,8 +92,32 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
         const finalDescription = aiResult.description || userDescription || 'Complaint description pending AI';
         const department = normalizeDepartment(aiResult.department);
 
-        // Calculate expected resolution date
-        const estimatedDays = aiResult.estimatedDays || 3;
+        // Calculate expected resolution date deterministically from the text string
+        let estimatedDays = 3;
+        if (aiResult.estimatedResolutionTime) {
+            const timeStr = String(aiResult.estimatedResolutionTime).toLowerCase();
+            const match = timeStr.match(/(\d+)/); // Grab the very first number (e.g., 3 out of "3-7 days")
+            
+            if (match && match[1]) {
+                const val = parseInt(match[1], 10);
+                if (timeStr.includes("week")) {
+                    estimatedDays = val * 7;
+                } else if (timeStr.includes("month")) {
+                    estimatedDays = val * 30;
+                } else if (timeStr.includes("hour")) {
+                    estimatedDays = Math.ceil(val / 24) || 1;
+                } else {
+                    estimatedDays = val; // Default to days
+                }
+            } else if (timeStr.includes("week")) { // Fallbacks if no number explicitly present
+                estimatedDays = 7;
+            } else if (timeStr.includes("month")) {
+                estimatedDays = 30;
+            } else if (timeStr.includes("hour")) {
+                estimatedDays = 1;
+            }
+        }
+
         const expectedResolutionDate = new Date();
         expectedResolutionDate.setDate(expectedResolutionDate.getDate() + estimatedDays);
 
@@ -112,7 +144,7 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
                 fallback: aiResult.fallback || false
             },
             timeline: [{
-                status: 'Assigned',
+                status: 'Submitted',
                 updatedBy: req.user.id,
                 note: 'Complaint created'
             }]
@@ -551,8 +583,27 @@ router.post('/:id/verify', authenticate, verificationUpload.single('verification
 
         const { verificationLocation, verificationAddress } = req.body;
 
-        // Create verification submission
-        const verificationImagePath = `/uploads/verifications/${req.file.filename}`;
+        // Upload Verification evidence to Supabase
+        const timestamp = Date.now();
+        const safeName = req.file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
+        const filename = `verification-${timestamp}-${safeName}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('Complaint Images')
+            .upload(filename, req.file.buffer, {
+                contentType: req.file.mimetype
+            });
+            
+        if (uploadError) {
+            console.error("Supabase Upload Error (Verification):", uploadError);
+            throw new Error("Failed to upload verification image to remote storage.");
+        }
+
+        const { data: publicUrlData } = supabase.storage
+            .from('Complaint Images')
+            .getPublicUrl(filename);
+            
+        const verificationImagePath = publicUrlData.publicUrl;
         const verificationSubmission = new VerificationSubmission({
             complaint_id: complaint._id,
             verifier_id: userId,
@@ -608,14 +659,7 @@ router.post('/:id/verify', authenticate, verificationUpload.single('verification
         });
     } catch (err) {
         console.error('Verification error:', err);
-        // Clean up uploaded file if verification failed
-        if (req.file && req.file.path) {
-            try {
-                fs.unlinkSync(req.file.path);
-            } catch (cleanupErr) {
-                console.error('Failed to cleanup verification image:', cleanupErr);
-            }
-        }
+        // File was processed in-memory, no local filesystem cleanup required
         res.status(500).json({ message: err.message || 'Failed to submit verification' });
     }
 });

@@ -4,22 +4,9 @@ const multer = require('multer');
 const { getConfig } = require('../config/services');
 
 const servicesConfig = getConfig();
-const uploadsRoot = path.join(__dirname, '..', 'uploads');
-const complaintsUploadPath = path.join(uploadsRoot, 'complaints');
-const verificationsUploadPath = path.join(uploadsRoot, 'verifications');
 
-// Ensure upload directories exist
-fs.mkdirSync(complaintsUploadPath, { recursive: true });
-fs.mkdirSync(verificationsUploadPath, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, complaintsUploadPath),
-  filename: (_req, file, cb) => {
-    const timestamp = Date.now();
-    const safeName = file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
-    cb(null, `${timestamp}-${safeName}`);
-  }
-});
+// Transitioned to Memory Storage for seamless Supabase buffer piping
+const storage = multer.memoryStorage();
 
 const fileFilter = (_req, file, cb) => {
   const allowed = servicesConfig.gemini.supportedFormats || [];
@@ -38,18 +25,9 @@ const upload = multer({
   }
 });
 
-// Storage for verification images
-const verificationStorage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, verificationsUploadPath),
-  filename: (_req, file, cb) => {
-    const timestamp = Date.now();
-    const safeName = file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
-    cb(null, `${timestamp}-${safeName}`);
-  }
-});
-
+// We can reuse the same memory storage for verifications
 const verificationUpload = multer({
-  storage: verificationStorage,
+  storage,
   fileFilter,
   limits: {
     fileSize: servicesConfig.gemini.maxImageSize || 10 * 1024 * 1024
@@ -58,8 +36,6 @@ const verificationUpload = multer({
 
 module.exports = {
   upload,
-  verificationUpload,
-  complaintsUploadPath,
-  verificationsUploadPath
+  verificationUpload
 };
 

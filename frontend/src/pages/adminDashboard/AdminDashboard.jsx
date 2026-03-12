@@ -7,6 +7,7 @@ import AnalyticsPanels from './components/AnalyticsPanels';
 import UserManagement from './components/UserManagement';
 import OfficerManagement from './components/OfficerManagement';
 import AssignOfficerPanel from './components/AssignOfficerPanel';
+import AdminComplaintDetails from './components/AdminComplaintDetails';
 import { adminService } from '../../services/adminService';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,6 +16,7 @@ const AdminDashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [selectedComplaint, setSelectedComplaint] = useState(null);
+    const [viewingComplaint, setViewingComplaint] = useState(null);
     const [complaintRefreshKey, setComplaintRefreshKey] = useState(0);
     const [data, setData] = useState({ stats: null, analytics: null });
 
@@ -85,6 +87,7 @@ const AdminDashboard = () => {
                         <div className={`${selectedComplaint ? 'lg:col-span-8' : 'lg:col-span-12'} transition-all duration-500`}>
                             <ComplaintManagement
                                 onAssignClick={complaint => setSelectedComplaint(complaint)}
+                                onViewDetails={complaint => setViewingComplaint(complaint)}
                                 refreshKey={complaintRefreshKey}
                             />
                         </div>
@@ -165,6 +168,11 @@ const AdminDashboard = () => {
                     <p>© 2025 CivicLens | All rights reserved. | Privacy Policy | Terms and Conditions</p>
                 </footer>
             </main>
+
+            <AdminComplaintDetails 
+                complaint={viewingComplaint} 
+                onClose={() => setViewingComplaint(null)} 
+            />
         </div>
     );
 };

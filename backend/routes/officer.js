@@ -99,8 +99,9 @@ router.get("/complaints", authenticate, officialOnly, async (req, res) => {
 
     const complaints = await Complaint.find(query)
       .sort({ createdAt: -1 })
+      .populate("citizen_id", "name phone")
       .select(
-        "title category address status priority createdAt expectedResolutionDate",
+        "title description images category address status priority createdAt expectedResolutionDate citizen_id",
       )
       .lean();
 
@@ -110,10 +111,15 @@ router.get("/complaints", authenticate, officialOnly, async (req, res) => {
         _id: c._id,
         id: `CLR-${String(c._id).slice(-4).toUpperCase()}`,
         title: c.title,
+        description: c.description,
+        images: c.images || [],
         category: c.category,
         location: c.address,
         status: c.status,
         priority: c.priority,
+        reporter: c.citizen_id ? c.citizen_id.name : "Unknown Citizen",
+        phone: c.citizen_id ? c.citizen_id.phone : "No phone provided",
+        expectedResolutionDate: c.expectedResolutionDate,
         date: new Date(c.createdAt).toLocaleDateString("en-US", {
           month: "short",
           day: "2-digit",
@@ -179,10 +185,7 @@ router.get("/complaints/:id", authenticate, officialOnly, async (req, res) => {
       phone: complaint.citizen_id
         ? complaint.citizen_id.phone
         : "No phone provided",
-      image:
-        complaint.images && complaint.images.length > 0
-          ? complaint.images[0]
-          : null,
+      images: complaint.images || [],
       daysLeft,
       expectedResolutionDate: complaint.expectedResolutionDate,
       isOverdue:

@@ -3,6 +3,7 @@ import { ChevronDown, Loader2 } from 'lucide-react';
 import { complaintService } from '../../../services/complaintService';
 import { useAuth } from '../../../context/AuthContext';
 import { useSocket } from '../../../context/SocketContext';
+import CitizenComplaintDetails from './CitizenComplaintDetails';
 
 const getStatusColor = (status) => {
     switch (status) {
@@ -53,6 +54,7 @@ const IssuesTable = () => {
     const { socket } = useSocket();
     const [issues, setIssues] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedIssue, setSelectedIssue] = useState(null);
 
     useEffect(() => {
         const fetchIssues = async () => {
@@ -120,11 +122,12 @@ const IssuesTable = () => {
 
             <div className="w-full">
                 <div className="grid grid-cols-12 pb-6 text-slate-400 text-[11px] font-black uppercase tracking-[0.1em] px-4 border-b border-slate-50">
-                    <div className="col-span-6">Issue</div>
+                    <div className="col-span-5">Issue</div>
                     <div className="col-span-3 text-center">Status</div>
-                    <div className="col-span-3 text-right flex items-center justify-end gap-1 cursor-pointer hover:text-slate-600">
-                        Days update <ChevronDown className="w-3 h-3" />
+                    <div className="col-span-2 text-center flex items-center justify-center gap-1 cursor-pointer hover:text-slate-600">
+                        Date <ChevronDown className="w-3 h-3" />
                     </div>
+                    <div className="col-span-2 text-right pr-2">Action</div>
                 </div>
 
                 <div className="mt-4 space-y-2">
@@ -132,7 +135,7 @@ const IssuesTable = () => {
                         const color = getStatusColor(issue.status);
                         return (
                             <div key={issue._id} className="grid grid-cols-12 items-center p-4 hover:bg-slate-50/80 rounded-3xl transition-all group">
-                                <div className="col-span-6 flex items-center gap-4">
+                                <div className="col-span-5 flex items-center gap-4">
                                     <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-100 group-hover:bg-white group-hover:shadow-sm transition-all">
                                         <img
                                             src={complaintService.getImageUrl(issue.images[0])}
@@ -148,14 +151,28 @@ const IssuesTable = () => {
                                         {issue.status}
                                     </div>
                                 </div>
-                                <div className="col-span-3 text-right text-slate-400 text-sm font-bold">
+                                <div className="col-span-2 text-center text-slate-400 text-sm font-bold">
                                     {formatTimeAgo(issue.createdAt)}
+                                </div>
+                                <div className="col-span-2 flex justify-end">
+                                    <button 
+                                        onClick={() => setSelectedIssue(issue)}
+                                        className="text-xs font-bold text-slate-500 hover:text-sky-600 bg-white hover:bg-sky-50 px-4 py-2.5 rounded-xl transition-colors border border-slate-100 shadow-sm active:scale-95"
+                                    >
+                                        View Detail
+                                    </button>
                                 </div>
                             </div>
                         );
                     })}
                 </div>
             </div>
+
+            {/* Slide-over details modal */}
+            <CitizenComplaintDetails 
+                complaint={selectedIssue} 
+                onClose={() => setSelectedIssue(null)} 
+            />
         </div>
     );
 };

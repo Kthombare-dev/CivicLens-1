@@ -117,14 +117,15 @@ function detectMimeFromPath(filePath) {
  * @param {string} [params.userDescription] - Optional user description/title
  * @returns {Promise<Object>} AI analysis result or fallback defaults
  */
-async function analyzeComplaintImage({ filePath, mimeType, userDescription }) {
-  if (!isGeminiConfigured()) {
+async function analyzeComplaintImage({ fileBuffer, mimeType, userDescription }) {
+  if (!isGeminiConfigured() || !fileBuffer) {
     return buildFallback(userDescription);
   }
 
   try {
     const gemini = serviceFactory.getGeminiService();
-    const dataUrl = await fileToDataUrl(filePath, mimeType);
+    const base64 = fileBuffer.toString('base64');
+    const dataUrl = `data:${mimeType};base64,${base64}`;
     const ai = await gemini.analyzeComplaintImage(dataUrl, userDescription);
     return {
       ...ai,
