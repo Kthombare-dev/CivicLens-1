@@ -46,7 +46,7 @@ router.post('/analyze', authenticate, upload.single('image'), async (req, res) =
 // POST /api/complaints - Create new complaint (Citizen)
 router.post('/', authenticate, upload.single('image'), async (req, res) => {
     try {
-        const { title, location, address, description: userDescription } = req.body;
+        const { title, location, address, description: userDescription, category: userCategory } = req.body;
 
         if (!title) {
             return res.status(400).json({ message: 'Title is required' });
@@ -81,12 +81,24 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
             
         const imagePath = publicUrlData.publicUrl;
 
-        // Run AI analysis (fallbacks handled internally)
-        const aiResult = await analyzeComplaintImage({
-            fileBuffer: req.file.buffer,
-            mimeType: req.file.mimetype,
-            userDescription: userDescription || title
-        });
+        // Use provided AI analysis from frontend if available, else run analysis
+        let aiResult;
+        if (req.body.aiAnalysis) {
+            try {
+                aiResult = JSON.parse(req.body.aiAnalysis);
+            } catch (e) {
+                console.error("Failed to parse aiAnalysis from frontend", e);
+            }
+        }
+
+        if (!aiResult) {
+            // Run AI analysis (fallbacks handled internally)
+            aiResult = await analyzeComplaintImage({
+                fileBuffer: req.file.buffer,
+                mimeType: req.file.mimetype,
+                userDescription: userDescription || title
+            });
+        }
 
         // Ensure we always persist a description
         const finalDescription = aiResult.description || userDescription || 'Complaint description pending AI';
@@ -128,7 +140,7 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
             location,
             address,
             images: [imagePath],
-            category: aiResult.category || 'Other',
+            category: userCategory || aiResult.category || 'Other',
             priority: aiResult.priority || 'Medium',
             department,
             expectedResolutionDate,
@@ -486,8 +498,8 @@ router.get('/verifiable', authenticate, async (req, res) => {
 
         // Build query for resolved complaints
         const query = {
-            status: 'Resolved',
-            citizen_id: { $ne: userId } // Exclude user's own complaints
+            status: 'Resolved'
+            // Removed constraint: citizens can now verify their own complaints
         };
 
         // When no coordinates: filter by user area if provided (from query or from user profile)
@@ -555,12 +567,8 @@ router.post('/:id/verify', authenticate, verificationUpload.single('verification
         const userId = req.user.id;
         const userIdObjectId = new mongoose.Types.ObjectId(userId);
 
-        // Prevent users from verifying their own complaints
-        if (complaint.citizen_id.toString() === userId) {
-            return res.status(400).json({ 
-                message: 'You cannot verify your own complaint' 
-            });
-        }
+        // Note: We intentionally allow users to verify their own complaints 
+        // to encourage closing the feedback loop on issues they reported.
 
         // Check if user has already verified this complaint
         const existingVerification = await VerificationSubmission.findOne({

@@ -148,6 +148,10 @@ const ReportIssue = () => {
             formData.append('image', image);
             formData.append('address', location);
 
+            if (aiAnalysis) {
+                formData.append('aiAnalysis', JSON.stringify(aiAnalysis));
+            }
+
             await complaintService.createComplaint(formData);
             setStep('success');
 
