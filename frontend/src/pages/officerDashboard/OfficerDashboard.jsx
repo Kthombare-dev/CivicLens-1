@@ -9,6 +9,8 @@ import ComplaintSlideOver from "./components/ComplaintSlideOver";
 import OfficerProfile from "./components/OfficerProfile";
 import { TrendingUp } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+
 export default function OfficerDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -28,7 +30,7 @@ export default function OfficerDashboard() {
         const headers = { Authorization: `Bearer ${token}` };
 
         // We can fetch table data for both 'dashboard' and 'resolved' tabs
-        let endpoint = `${import.meta.env.VITE_API_URL}/officer/complaints`;
+        let endpoint = `${API_URL}/officer/complaints`;
         if (activeTab === "resolved") {
           endpoint += "?status=Resolved";
         }
@@ -43,7 +45,7 @@ export default function OfficerDashboard() {
         // Fetch stats only for the main dashboard
         if (activeTab === "dashboard") {
           const statsRes = await fetch(
-            `${import.meta.env.VITE_API_URL}/officer/dashboard-stats`,
+            `${API_URL}/officer/dashboard-stats`,
             { headers }
           );
           const statsData = await statsRes.json();
@@ -71,7 +73,7 @@ export default function OfficerDashboard() {
     try {
       const token = JSON.parse(localStorage.getItem("user") || "{}").token;
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/officer/complaints/${complaintId}/status`,
+        `${API_URL}/officer/complaints/${complaintId}/status`,
         {
           method: "PUT",
           headers: {

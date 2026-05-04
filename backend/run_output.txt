@@ -1,0 +1,13 @@
+Using Google DNS for resolution
+[dotenv@17.2.3] injecting env (12) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+Connecting to MongoDB Atlas...
+Connection URI: mongodb+srv://ketancode14_db_user:****@civiclens.qezrozm.mongodb.net/civiclens?appName=CivicLens
+Initializing AI and Location services...
+Initializing AI and Location services...
+(node:12264) [MONGOOSE] Warning: Duplicate schema index on {"user_id":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Nominatim health check failed: Request failed with status code 403
+✓ MongoDB Atlas connected successfully
+Services initialized successfully
+✓ Services initialized successfully
+Uncaught Exception: listen EADDRINUSE: address already in use :::5000

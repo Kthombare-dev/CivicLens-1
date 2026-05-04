@@ -64,22 +64,31 @@ router.post('/', authenticate, upload.single('image'), async (req, res) => {
         const safeName = req.file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
         const filename = `${timestamp}-${safeName}`;
 
-        const { error: uploadError } = await supabase.storage
-            .from('Complaint Images')
-            .upload(filename, req.file.buffer, {
-                contentType: req.file.mimetype
-            });
-        
-        if (uploadError) {
-            console.error("Supabase Upload Error:", uploadError);
-            throw new Error("Failed to upload image to remote storage.");
+        let imagePath = '';
+        try {
+            const { error: uploadError } = await supabase.storage
+                .from('Complaint Images')
+                .upload(filename, req.file.buffer, {
+                    contentType: req.file.mimetype
+                });
+            
+            if (uploadError) {
+                console.error("Supabase Upload Error:", uploadError);
+                throw new Error("Failed to upload image to remote storage.");
+            }
+
+            const { data: publicUrlData } = supabase.storage
+                .from('Complaint Images')
+                .getPublicUrl(filename);
+                
+            imagePath = publicUrlData.publicUrl;
+        } catch (supabaseError) {
+            console.warn("Supabase Upload Failed, falling back to local storage:", supabaseError.message);
+            const localPath = require('path').join(__dirname, '..', 'uploads', filename);
+            require('fs').writeFileSync(localPath, req.file.buffer);
+            imagePath = `/uploads/${filename}`;
         }
 
-        const { data: publicUrlData } = supabase.storage
-            .from('Complaint Images')
-            .getPublicUrl(filename);
-            
-        const imagePath = publicUrlData.publicUrl;
 
         // Use provided AI analysis from frontend if available, else run analysis
         let aiResult;
@@ -596,22 +605,30 @@ router.post('/:id/verify', authenticate, verificationUpload.single('verification
         const safeName = req.file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
         const filename = `verification-${timestamp}-${safeName}`;
 
-        const { error: uploadError } = await supabase.storage
-            .from('Complaint Images')
-            .upload(filename, req.file.buffer, {
-                contentType: req.file.mimetype
-            });
-            
-        if (uploadError) {
-            console.error("Supabase Upload Error (Verification):", uploadError);
-            throw new Error("Failed to upload verification image to remote storage.");
-        }
+        let verificationImagePath = '';
+        try {
+            const { error: uploadError } = await supabase.storage
+                .from('Complaint Images')
+                .upload(filename, req.file.buffer, {
+                    contentType: req.file.mimetype
+                });
+                
+            if (uploadError) {
+                console.error("Supabase Upload Error (Verification):", uploadError);
+                throw new Error("Failed to upload verification image to remote storage.");
+            }
 
-        const { data: publicUrlData } = supabase.storage
-            .from('Complaint Images')
-            .getPublicUrl(filename);
-            
-        const verificationImagePath = publicUrlData.publicUrl;
+            const { data: publicUrlData } = supabase.storage
+                .from('Complaint Images')
+                .getPublicUrl(filename);
+                
+            verificationImagePath = publicUrlData.publicUrl;
+        } catch (supabaseError) {
+            console.warn("Supabase Verification Upload Failed, falling back to local storage:", supabaseError.message);
+            const localPath = require('path').join(__dirname, '..', 'uploads', 'verifications', filename);
+            require('fs').writeFileSync(localPath, req.file.buffer);
+            verificationImagePath = `/uploads/verifications/${filename}`;
+        }
         const verificationSubmission = new VerificationSubmission({
             complaint_id: complaint._id,
             verifier_id: userId,
